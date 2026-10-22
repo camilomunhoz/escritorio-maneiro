@@ -7,10 +7,16 @@ import { Flame, Globe, Award, CheckCircle2, Circle, ChevronRight, ShieldAlert } 
 
 interface HomeScreenProps {
   onOpenMedals: () => void;
+  onOpenOwnProfile: () => void;
+  onOpenSharedGoal: () => void;
 }
 
-export const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenMedals }) => {
-  const { state, completeDailyGoal } = useApp();
+export const HomeScreen: React.FC<HomeScreenProps> = ({
+  onOpenMedals,
+  onOpenOwnProfile,
+  onOpenSharedGoal,
+}) => {
+  const { state, setCurrentTab } = useApp();
   const { user, dailyGoals, sharedGoal, medals } = state;
 
   const currentLevelMinXP = (user.level - 1) * 100;
@@ -19,13 +25,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenMedals }) => {
 
   return (
     <div className="w-full h-full flex flex-col justify-between overflow-y-auto px-4 py-3 space-y-4">
-      {/* 1. Header do Usuário: Avatar Projetado, Nível, Streak e XP */}
-      <section className="bg-gradient-to-b from-calm-50/90 to-white p-3.5 rounded-xl border border-calm-200/80 shadow-soft">
+      {/* 1. Header do Usuário: Avatar Projetado, Nível, Streak e XP (Abre Meu Perfil ao Clicar) */}
+      <section
+        onClick={onOpenOwnProfile}
+        className="bg-gradient-to-b from-calm-50/90 to-white p-3.5 rounded-xl border border-calm-200/80 shadow-soft cursor-pointer hover:border-calm-300 hover:shadow-md transition-all group"
+        title="Clique para visualizar seu perfil completo"
+      >
         <div className="flex items-center gap-3">
           <AvatarSvg color={user.avatarColor} size="lg" projected />
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-calm-900 truncate">{user.name}</h2>
+              <div className="flex items-center gap-1 min-w-0">
+                <h2 className="text-sm font-semibold text-calm-900 truncate group-hover:text-sage-800 transition">
+                  {user.name}
+                </h2>
+                <ChevronRight size={13} className="text-calm-400 group-hover:text-calm-700 transition" />
+              </div>
               {user.vacationMode ? (
                 <span className="flex items-center gap-1 text-[11px] font-medium text-calm-600 bg-calm-100 px-2 py-0.5 rounded-full">
                   <ShieldAlert size={12} className="text-calm-500" />
@@ -76,17 +91,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenMedals }) => {
               social: 'border-l-sand-500',
             }[goal.pillar];
 
+            const pillarNames = {
+              games: 'Jogos',
+              health: 'Saúde',
+              social: 'Social',
+            }[goal.pillar];
+
             return (
               <div
                 key={goal.id}
-                onClick={() => !isCompleted && completeDailyGoal(goal.id)}
                 className={`p-2.5 rounded-lg border transition-all text-left flex items-center justify-between gap-2.5 ${
                   isCompleted
-                    ? 'bg-sage-50/70 border-sage-200 text-sage-900 cursor-default'
-                    : 'bg-white hover:bg-calm-50/90 border-calm-200 hover:border-calm-300 shadow-soft cursor-pointer'
+                    ? 'bg-sage-50/70 border-sage-200 text-sage-900'
+                    : 'bg-white border-calm-200 shadow-soft'
                 } border-l-4 ${pillarColors}`}
               >
-                <div className="flex items-start gap-2 min-w-0">
+                <div className="flex items-start gap-2 min-w-0 flex-1">
                   <div className="mt-0.5 shrink-0">
                     {isCompleted ? (
                       <CheckCircle2 size={16} className="text-sage-600" />
@@ -104,7 +124,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenMedals }) => {
                   </div>
                 </div>
 
-                <div className="shrink-0 text-right">
+                <div className="shrink-0 flex items-center gap-2">
                   {isCompleted ? (
                     <Badge variant="sage" size="sm">Feito</Badge>
                   ) : (
@@ -112,6 +132,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenMedals }) => {
                       +{goal.xpReward} XP
                     </span>
                   )}
+
+                  {/* Seta para direita que leva até a seção correspondente */}
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCurrentTab(goal.pillar);
+                    }}
+                    className="p-1 rounded-md text-calm-400 hover:text-calm-800 hover:bg-calm-100 transition cursor-pointer"
+                    title={`Ir para seção de ${pillarNames}`}
+                    aria-label={`Ir para a seção ${pillarNames}`}
+                  >
+                    <ChevronRight size={16} />
+                  </button>
                 </div>
               </div>
             );
@@ -119,16 +153,25 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenMedals }) => {
         </div>
       </section>
 
-      {/* 3. Meta Compartilhada Corporativa: Volta ao Mundo em 30 Dias */}
-      <section className="bg-sand-50/80 border border-sand-200/90 rounded-xl p-3.5 flex flex-col gap-2.5">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-sand-200/70 text-sand-800 flex items-center justify-center shrink-0">
-            <Globe size={16} />
+      {/* 3. Meta Compartilhada Corporativa: Volta ao Mundo em 30 Dias (Abre Detalhes ao Clicar) */}
+      <section
+        onClick={onOpenSharedGoal}
+        className="bg-sand-50/80 hover:bg-sand-50 border border-sand-200/90 hover:border-sand-300 rounded-xl p-3.5 flex flex-col gap-2.5 cursor-pointer shadow-soft hover:shadow-md transition-all group"
+        title="Clique para ver o ranking e conectar aplicativos"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-sand-200/70 text-sand-800 flex items-center justify-center shrink-0">
+              <Globe size={16} />
+            </div>
+            <div className="min-w-0">
+              <h4 className="text-xs font-semibold text-sand-900 leading-tight truncate group-hover:text-sand-950 transition">
+                {sharedGoal.title}
+              </h4>
+              <p className="text-[10px] text-sand-700 truncate">{sharedGoal.description}</p>
+            </div>
           </div>
-          <div className="min-w-0 flex-1">
-            <h4 className="text-xs font-semibold text-sand-900 leading-tight truncate">{sharedGoal.title}</h4>
-            <p className="text-[10px] text-sand-700 truncate">{sharedGoal.description}</p>
-          </div>
+          <ChevronRight size={14} className="text-sand-500 group-hover:text-sand-800 transition shrink-0" />
         </div>
 
         <div className="space-y-1">
@@ -146,7 +189,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ onOpenMedals }) => {
 
         <div className="flex items-center justify-between text-[10px] text-sand-700 pt-1 border-t border-sand-200/60">
           <span>{sharedGoal.deadlineDays} dias restantes</span>
-          <span className="italic">Pausas ativas somam passos de toda a equipe</span>
+          <span className="italic">Ver ranking e apps conectados</span>
         </div>
       </section>
 

@@ -52,6 +52,7 @@ export interface SharedGoal {
   currentKm: number;
   targetKm: number;
   deadlineDays: number;
+  connectedApps?: string[];
 }
 
 export type GameType = 'cobrinha' | 'pong' | 'termo';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { RefreshCw, Zap, Droplets, UserCheck, Sparkles, X, Sliders } from 'lucide-react';
+import { RefreshCw, Zap, Droplets, UserCheck, Sparkles, X, Sliders, RotateCcw } from 'lucide-react';
 import { Button } from '../ui/Button';
 
 export const DevControls: React.FC = () => {
@@ -11,6 +11,7 @@ export const DevControls: React.FC = () => {
     godmodeUnlockNextGame,
     godmodeSimulateWater,
     godmodeSimulatePostureAlert,
+    godmodeResetDailyGoals,
     addXP,
     toggleVacationMode,
     resetAllData,
@@ -96,6 +97,13 @@ export const DevControls: React.FC = () => {
             <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${state.user.vacationMode ? 'bg-sage-600 text-white' : 'bg-calm-700 text-calm-400'}`}>
               {state.user.vacationMode ? 'ATIVO' : 'DESL'}
             </span>
+          </button>
+          <button
+            onClick={godmodeResetDailyGoals}
+            className="w-full text-left px-2 py-1.5 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-200 border border-amber-500/20 transition flex items-center gap-2 cursor-pointer"
+          >
+            <RotateCcw size={13} className="text-amber-400" />
+            <span>Resetar Metas Diárias (Deduz XP)</span>
           </button>
         </div>
 

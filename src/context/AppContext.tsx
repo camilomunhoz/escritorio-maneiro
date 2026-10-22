@@ -24,6 +24,10 @@ interface AppContextValue {
   godmodeUnlockNextGame: () => void;
   godmodeSimulateWater: () => void;
   godmodeSimulatePostureAlert: () => void;
+  godmodeResetDailyGoals: () => void;
+  // Shared Goal Operations
+  connectApp: (appId: string) => void;
+  disconnectApp: (appId: string) => void;
   // Game Cycle Operations
   finishGameRound: (score: number) => void;
   advanceGameCycle: () => void;
@@ -238,6 +242,78 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         postureScore: Math.max(50, prev.health.postureScore - 15),
       },
     }));
+  }, []);
+
+  const godmodeResetDailyGoals = useCallback(() => {
+    setState(prev => {
+      let xpToDeduct = 0;
+      let xpGamesDeduct = 0;
+      let xpHealthDeduct = 0;
+      let xpSocialDeduct = 0;
+
+      prev.dailyGoals.forEach(g => {
+        if (g.completed) {
+          xpToDeduct += g.xpReward;
+          if (g.pillar === 'games') xpGamesDeduct += g.xpReward;
+          else if (g.pillar === 'health') xpHealthDeduct += g.xpReward;
+          else if (g.pillar === 'social') xpSocialDeduct += g.xpReward;
+        }
+      });
+
+      const newXP = Math.max(0, prev.user.xp - xpToDeduct);
+      const newLevel = Math.max(1, Math.floor(newXP / 100) + 1);
+      const newXpGames = Math.max(0, prev.user.xpGames - xpGamesDeduct);
+      const newXpHealth = Math.max(0, prev.user.xpHealth - xpHealthDeduct);
+      const newXpSocial = Math.max(0, prev.user.xpSocial - xpSocialDeduct);
+
+      const resetGoals = prev.dailyGoals.map(g => ({
+        ...g,
+        completed: false,
+        progress: 0,
+      }));
+
+      return {
+        ...prev,
+        dailyGoals: resetGoals,
+        user: {
+          ...prev.user,
+          xp: newXP,
+          level: newLevel,
+          xpGames: newXpGames,
+          xpHealth: newXpHealth,
+          xpSocial: newXpSocial,
+        },
+      };
+    });
+  }, []);
+
+  // Shared Goal Operations
+  const connectApp = useCallback((appId: string) => {
+    setState(prev => {
+      const currentApps = prev.sharedGoal.connectedApps || [];
+      if (currentApps.includes(appId)) return prev;
+
+      return {
+        ...prev,
+        sharedGoal: {
+          ...prev.sharedGoal,
+          connectedApps: [...currentApps, appId],
+        },
+      };
+    });
+  }, []);
+
+  const disconnectApp = useCallback((appId: string) => {
+    setState(prev => {
+      const currentApps = prev.sharedGoal.connectedApps || [];
+      return {
+        ...prev,
+        sharedGoal: {
+          ...prev.sharedGoal,
+          connectedApps: currentApps.filter(id => id !== appId),
+        },
+      };
+    });
   }, []);
 
   // Game Cycle Operations
@@ -508,6 +584,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     godmodeUnlockNextGame,
     godmodeSimulateWater,
     godmodeSimulatePostureAlert,
+    godmodeResetDailyGoals,
+    connectApp,
+    disconnectApp,
     finishGameRound,
     advanceGameCycle,
     registerWater,

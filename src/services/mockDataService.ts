@@ -60,6 +60,7 @@ export const INITIAL_SHARED_GOAL: SharedGoal = {
   currentKm: 14850,
   targetKm: 40075,
   deadlineDays: 14,
+  connectedApps: [],
 };
 
 export const INITIAL_MEDALS: Medal[] = [

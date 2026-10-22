@@ -5,12 +5,21 @@ import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { Card } from '../../ui/Card';
 import { Play, Lock, Clock, Trophy, HelpCircle, Gamepad2 } from 'lucide-react';
+import type { Coworker } from '../../../types';
 
-export const GamesScreen: React.FC = () => {
+interface GamesScreenProps {
+  onOpenCoworkerProfile?: (coworker: Coworker) => void;
+  onOpenOwnProfile?: () => void;
+}
+
+export const GamesScreen: React.FC<GamesScreenProps> = ({
+  onOpenCoworkerProfile,
+  onOpenOwnProfile,
+}) => {
   const { state, setDrawerMode } = useApp();
-  const { gameCycle, user } = state;
+  const { gameCycle, user, coworkers } = state;
 
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
@@ -160,14 +169,37 @@ export const GamesScreen: React.FC = () => {
           {sortedLeaderboard.slice(0, 5).map((entry, index) => {
             const isUser = entry.userId === user.id;
 
+            const handleEntryClick = () => {
+              if (isUser) {
+                onOpenOwnProfile?.();
+              } else {
+                const found = coworkers.find(c => c.id === entry.userId) || {
+                  id: entry.userId,
+                  name: entry.name,
+                  department: entry.department,
+                  avatarColor: entry.avatarColor,
+                  level: 3,
+                  xp: entry.score * 10,
+                  streak: 4,
+                  interests: ['Jogos', 'Tecnologia'],
+                  isFriend: false,
+                  friendRequestStatus: 'none',
+                  selectedMedalIds: [],
+                };
+                onOpenCoworkerProfile?.(found);
+              }
+            };
+
             return (
               <div
                 key={entry.userId}
-                className={`p-2 rounded-lg border flex items-center justify-between transition ${
+                onClick={handleEntryClick}
+                className={`p-2 rounded-lg border flex items-center justify-between transition cursor-pointer hover:border-calm-300 hover:shadow-soft ${
                   isUser
-                    ? 'bg-sage-50/80 border-sage-300 font-semibold text-sage-900'
-                    : 'bg-white border-calm-200 text-calm-800'
+                    ? 'bg-sage-50/80 hover:bg-sage-100/90 border-sage-300 font-semibold text-sage-900'
+                    : 'bg-white hover:bg-calm-50 border-calm-200 text-calm-800'
                 }`}
+                title={`Clique para ver o perfil de ${isUser ? 'você' : entry.name}`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span className="w-4 text-center font-mono text-[11px] font-bold text-calm-500">

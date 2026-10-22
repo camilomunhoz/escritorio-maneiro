@@ -19,11 +19,14 @@ import { MenuScreen } from './components/modules/menu/MenuScreen';
 import { CoworkerProfileModal } from './components/modules/menu/CoworkerProfileModal';
 import { MedalsShowcaseModal } from './components/modules/menu/MedalsShowcaseModal';
 import { InvitationModal } from './components/modules/social/InvitationModal';
+import { SharedGoalExpandedModal } from './components/modules/home/SharedGoalExpandedModal';
 
 const DrawerContent: React.FC = () => {
   const { state, setDrawerMode, setCurrentTab, createInvitation } = useApp();
 
   const [selectedCoworkerProfile, setSelectedCoworkerProfile] = useState<Coworker | null>(null);
+  const [showOwnProfile, setShowOwnProfile] = useState<boolean>(false);
+  const [showSharedGoal, setShowSharedGoal] = useState<boolean>(false);
   const [coworkerToInvite, setCoworkerToInvite] = useState<Coworker | null>(null);
   const [showGlobalMedals, setShowGlobalMedals] = useState(false);
 
@@ -61,6 +64,56 @@ const DrawerContent: React.FC = () => {
 
   // 2. Expanded Mode View (750x500px)
   if (state.drawerMode === 'expanded') {
+    if (showSharedGoal) {
+      return (
+        <div className="w-full h-full relative overflow-hidden">
+          <SharedGoalExpandedModal
+            onClose={() => {
+              setShowSharedGoal(false);
+              setDrawerMode('normal');
+            }}
+            onOpenProfile={(coworker, isOwn) => {
+              if (isOwn) {
+                setShowOwnProfile(true);
+              } else if (coworker) {
+                setSelectedCoworkerProfile(coworker);
+              }
+            }}
+          />
+
+          {selectedCoworkerProfile && (
+            <CoworkerProfileModal
+              coworker={selectedCoworkerProfile}
+              onClose={() => setSelectedCoworkerProfile(null)}
+              onInvite={() => {
+                setCoworkerToInvite(selectedCoworkerProfile);
+                setSelectedCoworkerProfile(null);
+              }}
+            />
+          )}
+
+          {showOwnProfile && (
+            <CoworkerProfileModal
+              isOwnProfile
+              onClose={() => setShowOwnProfile(false)}
+            />
+          )}
+
+          {coworkerToInvite && (
+            <InvitationModal
+              coworker={coworkerToInvite}
+              userName={state.user.name}
+              userAvatarColor={state.user.avatarColor}
+              onClose={() => setCoworkerToInvite(null)}
+              onSend={type => {
+                createInvitation(coworkerToInvite.id, type);
+                setCoworkerToInvite(null);
+              }}
+            />
+          )}
+        </div>
+      );
+    }
     if (state.currentTab === 'games') {
       return <GamePlayerExpanded />;
     }
@@ -77,9 +130,21 @@ const DrawerContent: React.FC = () => {
       {/* Tab Screen Content */}
       <main className="flex-1 overflow-y-auto min-h-0">
         {state.currentTab === 'home' && (
-          <HomeScreen onOpenMedals={() => setShowGlobalMedals(true)} />
+          <HomeScreen
+            onOpenMedals={() => setShowGlobalMedals(true)}
+            onOpenOwnProfile={() => setShowOwnProfile(true)}
+            onOpenSharedGoal={() => {
+              setShowSharedGoal(true);
+              setDrawerMode('expanded');
+            }}
+          />
         )}
-        {state.currentTab === 'games' && <GamesScreen />}
+        {state.currentTab === 'games' && (
+          <GamesScreen
+            onOpenCoworkerProfile={cw => setSelectedCoworkerProfile(cw)}
+            onOpenOwnProfile={() => setShowOwnProfile(true)}
+          />
+        )}
         {state.currentTab === 'health' && (
           <HealthScreen
             onOpenStretchVision={() => {
@@ -121,6 +186,13 @@ const DrawerContent: React.FC = () => {
             createInvitation(coworkerToInvite.id, type);
             setCoworkerToInvite(null);
           }}
+        />
+      )}
+
+      {showOwnProfile && (
+        <CoworkerProfileModal
+          isOwnProfile
+          onClose={() => setShowOwnProfile(false)}
         />
       )}
 
