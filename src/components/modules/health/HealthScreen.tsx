@@ -11,7 +11,6 @@ import {
   Activity,
   Sparkles,
   Camera,
-  Maximize2,
   AlertCircle,
   Play,
 } from 'lucide-react';

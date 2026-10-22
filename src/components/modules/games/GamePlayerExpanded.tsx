@@ -45,13 +45,13 @@ export const GamePlayerExpanded: React.FC = () => {
       {/* Coluna Direita (2/3 ~ 510px): Minijogo Ativo */}
       <section className="flex-1 h-full overflow-hidden flex flex-col bg-white">
         {gameCycle.currentGame === 'cobrinha' && (
-          <SnakeGame onGameOver={handleGameOver} onExit={handleExit} />
+          <SnakeGame key="cobrinha" onGameOver={handleGameOver} onExit={handleExit} />
         )}
         {gameCycle.currentGame === 'pong' && (
-          <PongGame onGameOver={handleGameOver} onExit={handleExit} />
+          <PongGame key="pong" onGameOver={handleGameOver} onExit={handleExit} />
         )}
         {gameCycle.currentGame === 'termo' && (
-          <TermoGame onGameOver={handleGameOver} onExit={handleExit} />
+          <TermoGame key="termo" onGameOver={handleGameOver} onExit={handleExit} />
         )}
       </section>
     </div>

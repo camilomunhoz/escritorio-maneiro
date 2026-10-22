@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, RotateCcw, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Award } from 'lucide-react';
+import { Play, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Award } from 'lucide-react';
 import { Button } from '../../ui/Button';
 
 interface SnakeGameProps {

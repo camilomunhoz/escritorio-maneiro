@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RotateCcw, Delete, CornerDownLeft, Award } from 'lucide-react';
+import { Delete, CornerDownLeft, Award } from 'lucide-react';
 import { Button } from '../../ui/Button';
 
 interface TermoGameProps {
@@ -16,7 +16,7 @@ const KEYBOARD_ROWS = [
 ];
 
 export const TermoGame: React.FC<TermoGameProps> = ({ onGameOver, onExit }) => {
-  const [targetWord, setTargetWord] = useState(() => {
+  const [targetWord] = useState(() => {
     return WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)];
   });
   const [guesses, setGuesses] = useState<string[]>([]);
@@ -26,16 +26,6 @@ export const TermoGame: React.FC<TermoGameProps> = ({ onGameOver, onExit }) => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const MAX_ATTEMPTS = 6;
-
-  const resetGame = () => {
-    const nextWord = WORD_POOL[Math.floor(Math.random() * WORD_POOL.length)];
-    setTargetWord(nextWord);
-    setGuesses([]);
-    setCurrentGuess('');
-    setIsGameOver(false);
-    setHasWon(false);
-    setErrorMessage('');
-  };
 
   const handleKey = useCallback(
     (key: string) => {

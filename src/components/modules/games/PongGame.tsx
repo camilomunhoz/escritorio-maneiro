@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, RotateCcw, Award } from 'lucide-react';
+import { Play, Award } from 'lucide-react';
 import { Button } from '../../ui/Button';
 
 interface PongGameProps {

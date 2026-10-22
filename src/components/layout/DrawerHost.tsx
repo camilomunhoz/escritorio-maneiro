@@ -8,7 +8,7 @@ export interface DrawerHostProps {
 }
 
 export const DrawerHost: React.FC<DrawerHostProps> = ({ children }) => {
-  const { state, setDrawerOpen, setDrawerMode } = useApp();
+  const { state, setDrawerOpen } = useApp();
 
   // Width and height mapping according to explicit specifications
   const dimensionClasses: Record<DrawerMode, string> = {

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { AppState, DrawerMode, NavigationTab, User } from '../types';
+import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderboardEntry } from '../types';
 import { loadAppState, saveAppState, resetAppState } from '../services/storageService';
 
 interface AppContextValue {
@@ -174,16 +174,46 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setState(fresh);
   }, []);
 
+  // Game Rotation Helpers
+  const GAME_ROTATION_SEQUENCE: GameType[] = ['cobrinha', 'pong', 'termo'];
+
+  const getNextGameType = (current: GameType): GameType => {
+    const currentIdx = GAME_ROTATION_SEQUENCE.indexOf(current);
+    if (currentIdx === -1) return GAME_ROTATION_SEQUENCE[0];
+    return GAME_ROTATION_SEQUENCE[(currentIdx + 1) % GAME_ROTATION_SEQUENCE.length];
+  };
+
+  const getFreshRoundLeaderboard = (game: GameType): RoundLeaderboardEntry[] => {
+    const mockScores: Record<GameType, number[]> = {
+      cobrinha: [95, 80, 65, 45],
+      pong: [110, 85, 70, 50],
+      termo: [100, 85, 75, 60],
+    };
+    const scores = mockScores[game] || [90, 75, 60, 40];
+    return [
+      { userId: 'cw-2', name: 'Bruno Oliveira', score: scores[0], department: 'Engenharia de Software', avatarColor: '#5A6B7C' },
+      { userId: 'cw-6', name: 'Gabriel Souza', score: scores[1], department: 'Engenharia de Software', avatarColor: '#9E5B4B' },
+      { userId: 'cw-8', name: 'Lucas Pereira', score: scores[2], department: 'Qualidade e Testes', avatarColor: '#78909C' },
+      { userId: 'cw-1', name: 'Mariana Costa', score: scores[3], department: 'Design de Produto', avatarColor: '#C87D6B' },
+    ];
+  };
+
   // Godmode helpers
   const godmodeUnlockNextGame = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      gameCycle: {
-        ...prev.gameCycle,
-        nextReleaseTimestamp: Date.now() - 1000,
-        playedInCurrentCycle: false,
-      },
-    }));
+    setState(prev => {
+      const nextGame = getNextGameType(prev.gameCycle.currentGame);
+      return {
+        ...prev,
+        gameCycle: {
+          ...prev.gameCycle,
+          currentGame: nextGame,
+          playedInCurrentCycle: false,
+          lastScore: 0,
+          nextReleaseTimestamp: Date.now() - 1000,
+          roundLeaderboard: getFreshRoundLeaderboard(nextGame),
+        },
+      };
+    });
   }, []);
 
   const godmodeSimulateWater = useCallback(() => {
@@ -256,16 +286,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const advanceGameCycle = useCallback(() => {
     setState(prev => {
-      const sequence: ('cobrinha' | 'pong' | 'termo')[] = ['cobrinha', 'pong', 'termo'];
-      const currentIdx = sequence.indexOf(prev.gameCycle.currentGame);
-      const nextGame = sequence[(currentIdx + 1) % sequence.length];
+      const nextGame = getNextGameType(prev.gameCycle.currentGame);
       return {
         ...prev,
         gameCycle: {
           ...prev.gameCycle,
           currentGame: nextGame,
           playedInCurrentCycle: false,
+          lastScore: 0,
           nextReleaseTimestamp: Date.now() + 3 * 60 * 60 * 1000,
+          roundLeaderboard: getFreshRoundLeaderboard(nextGame),
         },
       };
     });
