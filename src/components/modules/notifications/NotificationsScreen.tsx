@@ -15,12 +15,14 @@ import { formatNotificationTime } from '../../../utils/formatters';
 interface NotificationsScreenProps {
   onClose?: () => void;
   onOpenMedals?: () => void;
+  onNavigateToSocialSubTab?: (subTab: 'recommendations' | 'connections' | 'invitations') => void;
   zIndex?: number;
 }
 
 export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   onClose,
   onOpenMedals,
+  onNavigateToSocialSubTab,
   zIndex,
 }) => {
   const { state, markNotificationsRead, markNotificationItemRead, setCurrentTab } = useApp();
@@ -35,12 +37,19 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     }
 
     // Direct go-to navigation
+    if (notif.category === 'social' || notif.goToTab === 'social') {
+      const targetSubTab = notif.goToSubTab || 'invitations';
+      if (onNavigateToSocialSubTab) {
+        onNavigateToSocialSubTab(targetSubTab);
+      }
+      setCurrentTab('social');
+      return;
+    }
+
     if (notif.goToTab) {
       setCurrentTab(notif.goToTab);
     } else if (notif.category === 'games') {
       setCurrentTab('games');
-    } else if (notif.category === 'social') {
-      setCurrentTab('social');
     } else if (notif.category === 'health') {
       setCurrentTab('health');
     } else if (notif.category === 'medal' && onOpenMedals) {

@@ -50,6 +50,7 @@ const DrawerContent: React.FC = () => {
   const [coworkerToInvite, setCoworkerToInvite] = useState<Coworker | null>(null);
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [socialSubTab, setSocialSubTab] = useState<'recommendations' | 'connections' | 'invitations'>('recommendations');
 
   const isPopoverActive = Boolean(
     showOwnProfile || showAvatarModal || showGlobalMedals || showSettingsModal
@@ -62,7 +63,8 @@ const DrawerContent: React.FC = () => {
     showPostureCalibration ||
     showFacialDetection ||
     showAvatarModal ||
-    showGlobalMedals
+    showGlobalMedals ||
+    coworkerToInvite
   );
 
   // Synchronize drawer structure whenever an expanded environment opens or closes
@@ -196,6 +198,11 @@ const DrawerContent: React.FC = () => {
               setShowNotifications(false);
               setShowGlobalMedals(true);
             }}
+            onNavigateToSocialSubTab={subTab => {
+              setShowNotifications(false);
+              closeAllOverlays();
+              setSocialSubTab(subTab);
+            }}
           />
         )}
       </div>
@@ -252,9 +259,14 @@ const DrawerContent: React.FC = () => {
         )}
         {state.currentTab === 'social' && (
           <SocialScreen
+            initialSubTab={socialSubTab}
             onOpenCoworkerProfile={cw => {
               closeAllOverlays();
               setSelectedCoworkerProfile(cw);
+            }}
+            onOpenInvite={cw => {
+              closeAllOverlays();
+              setCoworkerToInvite(cw);
             }}
           />
         )}
@@ -264,6 +276,10 @@ const DrawerContent: React.FC = () => {
             onOpenMedals={() => {
               closeAllOverlays();
               setShowGlobalMedals(true);
+            }}
+            onNavigateToSocialSubTab={subTab => {
+              closeAllOverlays();
+              setSocialSubTab(subTab);
             }}
           />
         )}
@@ -368,6 +384,11 @@ const DrawerContent: React.FC = () => {
           onOpenMedals={() => {
             setShowNotifications(false);
             setShowGlobalMedals(true);
+          }}
+          onNavigateToSocialSubTab={subTab => {
+            setShowNotifications(false);
+            closeAllOverlays();
+            setSocialSubTab(subTab);
           }}
         />
       )}

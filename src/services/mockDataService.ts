@@ -1,4 +1,4 @@
-import type { User, Coworker, DailyGoal, SharedGoal, Medal, NotificationItem, GameCycleState, HealthState, AppState } from '../types';
+import type { User, Coworker, DailyGoal, SharedGoal, Medal, NotificationItem, GameCycleState, HealthState, AppState, SocialInvitation, UserConnection } from '../types';
 
 export const INITIAL_USER: User = {
   id: 'usr-main-tester',
@@ -140,10 +140,11 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     id: 'notif-2',
     title: 'Convite recebido',
     message: 'Mariana Costa convidou você para uma pausa do café.',
-    timestamp: Date.now() - 1000 * 60 * 45,
+    timestamp: Date.now() - 1000 * 60 * 12,
     read: false,
     category: 'social',
     goToTab: 'social',
+    goToSubTab: 'invitations',
   },
   {
     id: 'notif-3',
@@ -378,6 +379,39 @@ export const INITIAL_HEALTH_STATE: HealthState = {
   stretchesCompleted: 1,
 };
 
+export const INITIAL_INVITATIONS: SocialInvitation[] = [
+  {
+    id: 'inv-init-mariana',
+    senderId: 'cw-1',
+    senderName: 'Mariana Costa',
+    senderAvatarColor: '#C87D6B',
+    receiverId: 'usr-main-tester',
+    receiverName: 'Alexandre Silva',
+    type: 'cafe',
+    timestamp: Date.now() - 1000 * 60 * 12, // 12 min ago
+    status: 'pending',
+  },
+];
+
+export const INITIAL_CONNECTIONS: UserConnection[] = [
+  {
+    id: 'conn-bruno',
+    coworkerId: 'cw-2', // Bruno Oliveira
+    sharedXp: 85, // Level 2 (50 for lvl 1, 35 into lvl 2)
+    level: 2,
+    encountersCount: 2,
+    lastEncounterTimestamp: Date.now() - 1000 * 60 * 60 * 24, // 1 day ago
+  },
+  {
+    id: 'conn-gabriel',
+    coworkerId: 'cw-6', // Gabriel Souza
+    sharedXp: 30, // Level 1 (30 / 50 XP)
+    level: 1,
+    encountersCount: 1,
+    lastEncounterTimestamp: Date.now() - 1000 * 60 * 60 * 72, // 3 days ago
+  },
+];
+
 export function createInitialAppState(): AppState {
   return {
     user: INITIAL_USER,
@@ -391,7 +425,8 @@ export function createInitialAppState(): AppState {
     sharedGoal: INITIAL_SHARED_GOAL,
     gameCycle: INITIAL_GAME_CYCLE,
     health: INITIAL_HEALTH_STATE,
-    invitations: [],
+    invitations: INITIAL_INVITATIONS,
+    connections: INITIAL_CONNECTIONS,
     medals: INITIAL_MEDALS,
     notifications: INITIAL_NOTIFICATIONS,
   };

@@ -16,6 +16,14 @@ export function loadAppState(): AppState {
     if (!parsed.user || !parsed.coworkers) {
       throw new Error('Estado corrompido ou incompleto.');
     }
+    const initial = createInitialAppState();
+    // Guarantee required fields from current schema updates
+    if (!parsed.connections || !Array.isArray(parsed.connections)) {
+      parsed.connections = initial.connections;
+    }
+    if (!parsed.invitations || !Array.isArray(parsed.invitations) || parsed.invitations.length === 0) {
+      parsed.invitations = initial.invitations;
+    }
     return parsed;
   } catch (error) {
     console.warn('Falha ao ler o estado local. Restaurando padrão.', error);

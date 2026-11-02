@@ -191,4 +191,5 @@ class SoundEffectsService {
 }
 
 export const audioService = new SoundEffectsService();
+export const soundEffects = audioService;
 export default audioService;

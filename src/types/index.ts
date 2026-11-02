@@ -101,7 +101,18 @@ export interface SocialInvitation {
   receiverName: string;
   type: InvitationType;
   timestamp: number;
-  status: 'pending' | 'accepted' | 'completed';
+  acceptedAt?: number;
+  expiresAt?: number;
+  status: 'pending' | 'accepted' | 'completed' | 'expired';
+}
+
+export interface UserConnection {
+  id: string;
+  coworkerId: string;
+  sharedXp: number;
+  level: number;
+  encountersCount: number;
+  lastEncounterTimestamp: number;
 }
 
 export type MedalTier = 'bronze' | 'silver' | 'gold' | 'platinum';
@@ -125,6 +136,7 @@ export interface NotificationItem {
   read: boolean;
   category: 'medal' | 'social' | 'health' | 'system' | 'games';
   goToTab?: NavigationTab;
+  goToSubTab?: 'recommendations' | 'connections' | 'invitations';
 }
 
 export interface AppState {
@@ -140,6 +152,7 @@ export interface AppState {
   gameCycle: GameCycleState;
   health: HealthState;
   invitations: SocialInvitation[];
+  connections: UserConnection[];
   medals: Medal[];
   notifications: NotificationItem[];
 }

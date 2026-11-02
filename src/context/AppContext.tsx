@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderboardEntry, NotificationItem } from '../types';
+import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderboardEntry, NotificationItem, UserConnection, InvitationType } from '../types';
 import { loadAppState, saveAppState, resetAppState } from '../services/storageService';
+import { getXpRewardForEncounter, calculateConnectionLevel } from '../utils/socialUtils';
 
 interface AppContextValue {
   state: AppState;
@@ -40,7 +41,10 @@ interface AppContextValue {
   sendFriendRequest: (coworkerId: string) => void;
   acceptFriendRequest: (coworkerId: string) => void;
   declineFriendRequest: (coworkerId: string) => void;
-  createInvitation: (coworkerId: string, type: 'cafe' | 'almoco' | 'sol' | 'conversa') => void;
+  createInvitation: (coworkerId: string, type: InvitationType) => void;
+  acceptInvitation: (invitationId: string) => void;
+  cancelInvitation: (invitationId: string) => void;
+  validateEncounterProximity: (invitationId: string) => { success: boolean; xpEarned: number; newRelationLevel: number };
   updateUserInterests: (interests: string[]) => void;
   markNotificationsRead: () => void;
   markNotificationItemRead: (id: string) => void;
@@ -550,7 +554,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   }, []);
 
-  const createInvitation = useCallback((coworkerId: string, type: 'cafe' | 'almoco' | 'sol' | 'conversa') => {
+  const createInvitation = useCallback((coworkerId: string, type: InvitationType) => {
     setState(prev => {
       const coworker = prev.coworkers.find(c => c.id === coworkerId);
       if (!coworker) return prev;
@@ -564,29 +568,133 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         receiverName: coworker.name,
         type,
         timestamp: Date.now(),
-        status: 'accepted' as const, // auto-accepted for prototype demonstration
+        status: 'pending' as const,
       };
 
-      // Mark daily social goal as completed
+      // Mark daily social goal as completed (sending an invite satisfies the daily goal)
       const updatedGoals = prev.dailyGoals.map(g =>
         g.pillar === 'social' ? { ...g, completed: true, progress: g.target } : g
       );
-
-      const newXP = prev.user.xp + 40;
-      const newLevel = Math.floor(newXP / 100) + 1;
 
       return {
         ...prev,
         invitations: [newInvitation, ...prev.invitations],
         dailyGoals: updatedGoals,
+      };
+    });
+  }, []);
+
+  const acceptInvitation = useCallback((invitationId: string) => {
+    setState(prev => {
+      const now = Date.now();
+      const threeHoursMs = 3 * 60 * 60 * 1000;
+      const targetInv = prev.invitations.find(i => i.id === invitationId);
+      if (!targetInv) return prev;
+
+      const updatedInvitations = prev.invitations.map(inv =>
+        inv.id === invitationId
+          ? {
+              ...inv,
+              status: 'accepted' as const,
+              acceptedAt: now,
+              expiresAt: now + threeHoursMs,
+            }
+          : inv
+      );
+
+      return {
+        ...prev,
+        invitations: updatedInvitations,
+      };
+    });
+  }, []);
+
+  const cancelInvitation = useCallback((invitationId: string) => {
+    // Cancelamento silencioso: remove sem badge, sem alerta, sem resíduo de histórico
+    setState(prev => ({
+      ...prev,
+      invitations: prev.invitations.filter(i => i.id !== invitationId),
+      notifications: prev.notifications.filter(n => !n.id.includes(invitationId)),
+    }));
+  }, []);
+
+  const validateEncounterProximity = useCallback((invitationId: string) => {
+    let result = { success: false, xpEarned: 0, newRelationLevel: 1 };
+    setState(prev => {
+      const targetInv = prev.invitations.find(i => i.id === invitationId);
+      if (!targetInv || targetInv.status !== 'accepted') return prev;
+
+      const partnerId = targetInv.senderId === prev.user.id ? targetInv.receiverId : targetInv.senderId;
+      const partnerName = targetInv.senderId === prev.user.id ? targetInv.receiverName : targetInv.senderName;
+      const existingConn = prev.connections.find(c => c.coworkerId === partnerId);
+      const currentLevel = existingConn?.level || 1;
+
+      // XP geral ganho começa em 50 e sobe 10 a cada nível de relação
+      const xpEarned = getXpRewardForEncounter(currentLevel);
+      const newSharedXp = (existingConn?.sharedXp || 0) + xpEarned;
+      const levelInfo = calculateConnectionLevel(newSharedXp);
+
+      result = {
+        success: true,
+        xpEarned,
+        newRelationLevel: levelInfo.level,
+      };
+
+      const updatedConn: UserConnection = {
+        id: existingConn?.id || `conn-${partnerId}`,
+        coworkerId: partnerId,
+        sharedXp: newSharedXp,
+        level: levelInfo.level,
+        encountersCount: (existingConn?.encountersCount || 0) + 1,
+        lastEncounterTimestamp: Date.now(),
+      };
+
+      const otherConnections = prev.connections.filter(c => c.coworkerId !== partnerId);
+
+      // Atualiza o convite para concluído
+      const updatedInvitations = prev.invitations.map(inv =>
+        inv.id === invitationId
+          ? { ...inv, status: 'completed' as const }
+          : inv
+      );
+
+      // Marca colega como amigo no registro de coworker
+      const updatedCoworkers = prev.coworkers.map(cw =>
+        cw.id === partnerId
+          ? { ...cw, isFriend: true, friendRequestStatus: 'accepted' as const }
+          : cw
+      );
+
+      // Jogador ganha XP individual pelo encontro
+      const individualXpGain = 40;
+      const newXP = prev.user.xp + individualXpGain;
+      const newLevel = Math.floor(newXP / 100) + 1;
+
+      const completionNotification: NotificationItem = {
+        id: `notif-enc-${Date.now()}`,
+        title: 'Encontro validado com sucesso',
+        message: `Sua presença com ${partnerName} foi confirmada. Vínculo fortalecido (+${xpEarned} XP compartilhado).`,
+        timestamp: Date.now(),
+        read: false,
+        category: 'social',
+        goToTab: 'social',
+      };
+
+      return {
+        ...prev,
+        invitations: updatedInvitations,
+        connections: [updatedConn, ...otherConnections],
+        coworkers: updatedCoworkers,
+        notifications: [completionNotification, ...prev.notifications],
         user: {
           ...prev.user,
           xp: newXP,
-          xpSocial: prev.user.xpSocial + 40,
+          xpSocial: prev.user.xpSocial + individualXpGain,
           level: newLevel,
         },
       };
     });
+    return result;
   }, []);
 
   const updateUserInterests = useCallback((interests: string[]) => {
@@ -644,6 +752,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     acceptFriendRequest,
     declineFriendRequest,
     createInvitation,
+    acceptInvitation,
+    cancelInvitation,
+    validateEncounterProximity,
     updateUserInterests,
     markNotificationsRead,
     markNotificationItemRead,

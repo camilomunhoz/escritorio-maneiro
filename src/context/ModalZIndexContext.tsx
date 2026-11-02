@@ -85,8 +85,12 @@ export const ModalZIndexProvider: React.FC<ModalZIndexProviderProps> = ({
       mountedAt: Date.now(),
     });
 
-    setTopZIndex(nextZ);
-    setActiveModalCount(activeModalsRef.current.size);
+    // Defer state update to next microtask to avoid 'setState in render' warnings
+    queueMicrotask(() => {
+      setTopZIndex(nextZ);
+      setActiveModalCount(activeModalsRef.current.size);
+    });
+
     return nextZ;
   }, [calculateNextZIndex]);
 
@@ -96,20 +100,24 @@ export const ModalZIndexProvider: React.FC<ModalZIndexProviderProps> = ({
     }
 
     activeModalsRef.current.delete(id);
-    const newCount = activeModalsRef.current.size;
-    setActiveModalCount(newCount);
 
-    if (newCount === 0) {
-      setTopZIndex(baseZIndex);
-    } else {
-      let currentMax = baseZIndex;
-      for (const reg of activeModalsRef.current.values()) {
-        if (reg.zIndex > currentMax) {
-          currentMax = reg.zIndex;
+    // Defer state update to next microtask to avoid 'setState in render' warnings
+    queueMicrotask(() => {
+      const newCount = activeModalsRef.current.size;
+      setActiveModalCount(newCount);
+
+      if (newCount === 0) {
+        setTopZIndex(baseZIndex);
+      } else {
+        let currentMax = baseZIndex;
+        for (const reg of activeModalsRef.current.values()) {
+          if (reg.zIndex > currentMax) {
+            currentMax = reg.zIndex;
+          }
         }
+        setTopZIndex(currentMax);
       }
-      setTopZIndex(currentMax);
-    }
+    });
   }, [baseZIndex]);
 
   const bringToFront = useCallback((id: string): number => {
@@ -138,7 +146,10 @@ export const ModalZIndexProvider: React.FC<ModalZIndexProviderProps> = ({
       mountedAt: Date.now(),
     });
 
-    setTopZIndex(nextZ);
+    queueMicrotask(() => {
+      setTopZIndex(nextZ);
+    });
+
     return nextZ;
   }, [baseZIndex]);
 
