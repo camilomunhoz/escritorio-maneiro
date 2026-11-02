@@ -22,7 +22,6 @@ import {
   Clock,
   UserPlus,
   Radio,
-  X,
   HeartHandshake,
 } from 'lucide-react';
 

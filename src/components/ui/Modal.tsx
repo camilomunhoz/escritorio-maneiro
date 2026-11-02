@@ -148,7 +148,7 @@ export const Modal: React.FC<ModalProps> = ({
                   {icon && <span className="shrink-0">{icon}</span>}
                   <div className="min-w-0">
                     {title && (
-                      <h2 className="text-xs font-semibold text-calm-900 truncate">
+                      <h2 className="text-xs font-normal text-calm-900 truncate">
                         {title}
                       </h2>
                     )}
