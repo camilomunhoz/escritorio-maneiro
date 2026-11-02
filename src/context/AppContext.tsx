@@ -34,6 +34,7 @@ interface AppContextValue {
   advanceGameCycle: () => void;
   // Health Operations
   registerWater: (amount?: number) => { success: boolean; message: string };
+  setWaterTarget: (target: number) => void;
   setWaterUnit: (unit: 'cups' | 'ml') => void;
   calibrateHealth: (postureScore: number) => void;
   completeStretch: (repsCompleted?: number, sessionScore?: number) => void;
@@ -246,7 +247,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const godmodeSimulateWater = useCallback(() => {
     setState(prev => {
-      const newCount = Math.min(prev.health.waterTarget, prev.health.waterCount + 1);
+      const newCount = Math.min(prev.health.waterTarget, prev.health.waterCount + 200);
       return {
         ...prev,
         health: {
@@ -418,7 +419,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   // Health Operations
-  const registerWater = useCallback((amount = 1): { success: boolean; message: string } => {
+  const registerWater = useCallback((amount = 200): { success: boolean; message: string } => {
     let result = { success: true, message: 'Registro de água efetuado com sucesso.' };
     setState(prev => {
       const now = Date.now();
@@ -432,17 +433,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const isTargetReached = newCount >= prev.health.waterTarget;
 
       let updatedGoals = prev.dailyGoals;
-      let newXP = prev.user.xp;
-      let xpHealth = prev.user.xpHealth;
-      let newLevel = prev.user.level;
+      let newXP = prev.user.xp + 2;
+      let xpHealth = prev.user.xpHealth + 2;
+      let newLevel = Math.floor(newXP / 100) + 1;
 
-      if (isValidForGoal && isTargetReached) {
-        updatedGoals = prev.dailyGoals.map(g =>
-          g.pillar === 'health' ? { ...g, completed: true, progress: g.target } : g
-        );
-        newXP += 40;
-        xpHealth += 40;
-        newLevel = Math.floor(newXP / 100) + 1;
+      if (isValidForGoal) {
+        updatedGoals = prev.dailyGoals.map(g => {
+          if (g.pillar === 'health' && !g.completed) {
+            const nextProgress = Math.min(g.target, g.progress + 1);
+            const isCompleted = nextProgress >= g.target || isTargetReached;
+            if (isCompleted) {
+              newXP += g.xpReward;
+              xpHealth += g.xpReward;
+              newLevel = Math.floor(newXP / 100) + 1;
+            }
+            return {
+              ...g,
+              progress: isCompleted ? g.target : nextProgress,
+              completed: isCompleted,
+            };
+          }
+          return g;
+        });
       }
 
       if (!isValidForGoal) {
@@ -471,21 +483,18 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return result;
   }, []);
 
-  const setWaterUnit = useCallback((unit: 'cups' | 'ml') => {
-    setState(prev => {
-      const isSwitchToMl = unit === 'ml';
-      const target = isSwitchToMl ? 2000 : 8;
-      const count = isSwitchToMl ? prev.health.waterCount * 250 : Math.round(prev.health.waterCount / 250);
-      return {
-        ...prev,
-        health: {
-          ...prev.health,
-          waterUnit: unit,
-          waterTarget: target,
-          waterCount: count,
-        },
-      };
-    });
+  const setWaterTarget = useCallback((target: number) => {
+    setState(prev => ({
+      ...prev,
+      health: {
+        ...prev.health,
+        waterTarget: Math.max(100, target),
+      },
+    }));
+  }, []);
+
+  const setWaterUnit = useCallback((_unit: 'cups' | 'ml') => {
+    // Unidade padronizada em mL
   }, []);
 
   const calibrateHealth = useCallback((postureScore: number) => {
@@ -745,6 +754,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     finishGameRound,
     advanceGameCycle,
     registerWater,
+    setWaterTarget,
     setWaterUnit,
     calibrateHealth,
     completeStretch,

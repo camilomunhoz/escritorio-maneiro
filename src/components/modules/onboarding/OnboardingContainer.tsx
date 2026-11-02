@@ -66,7 +66,7 @@ export const OnboardingContainer: React.FC = () => {
         const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 400, height: 300 } });
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => {});
+          videoRef.current.play().catch(() => { });
         }
       }
     } catch {
@@ -120,7 +120,7 @@ export const OnboardingContainer: React.FC = () => {
             <Sparkles className="w-8 h-8 text-sage-600" />
           </div>
           <h2 className="text-xl font-semibold text-calm-900 tracking-tight mb-2">
-            Bem-vindo ao Escritório Divertido
+            Bem-vindo ao Nimbo
           </h2>
           <p className="text-xs text-calm-500 max-w-xs leading-relaxed">
             Sua nova plataforma de bem-estar, micropausas cognitivas e conexão presencial no ambiente de trabalho.
@@ -210,11 +210,10 @@ export const OnboardingContainer: React.FC = () => {
               <button
                 key={idx}
                 onClick={() => setCarouselIndex(idx)}
-                className={`transition-all duration-200 rounded-full cursor-pointer ${
-                  carouselIndex === idx
+                className={`transition-all duration-200 rounded-full cursor-pointer ${carouselIndex === idx
                     ? 'w-6 h-2 bg-sage-600'
                     : 'w-2 h-2 bg-calm-300 hover:bg-calm-400'
-                }`}
+                  }`}
                 title={`Ir para ${explanations[idx].title}`}
               />
             ))}
@@ -326,9 +325,8 @@ export const OnboardingContainer: React.FC = () => {
                 <button
                   key={c.hex}
                   onClick={() => setTempColor(c.hex)}
-                  className={`w-9 h-9 rounded-full transition-transform active:scale-95 cursor-pointer flex items-center justify-center ${
-                    tempColor === c.hex ? 'ring-2 ring-offset-2 ring-calm-800 scale-105' : 'hover:scale-105'
-                  }`}
+                  className={`w-9 h-9 rounded-full transition-transform active:scale-95 cursor-pointer flex items-center justify-center ${tempColor === c.hex ? 'ring-2 ring-offset-2 ring-calm-800 scale-105' : 'hover:scale-105'
+                    }`}
                   style={{ backgroundColor: c.hex }}
                   title={c.name}
                 >
@@ -369,7 +367,7 @@ export const OnboardingContainer: React.FC = () => {
           <div className="flex flex-col gap-3">
             <span className="text-[10px] font-semibold text-sage-700 tracking-wider uppercase">Passo 2 de 2</span>
             <h3 className="font-semibold text-calm-900 text-sm">Detecção e Biometria Facial</h3>
-            
+
             <ul className="text-xs text-calm-600 space-y-2 mt-1 leading-relaxed">
               <li className="flex items-start gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-sage-600 mt-1.5 flex-shrink-0" />
@@ -440,9 +438,8 @@ export const OnboardingContainer: React.FC = () => {
 
                 {/* Oval Frame: White turning Green after 2s */}
                 <div
-                  className={`absolute w-36 h-48 rounded-[50%] border-2 transition-colors duration-500 pointer-events-none ${
-                    cameraScanning ? 'border-white animate-pulse' : 'border-emerald-400 bg-emerald-500/10'
-                  }`}
+                  className={`absolute w-36 h-48 rounded-[50%] border-2 transition-colors duration-500 pointer-events-none ${cameraScanning ? 'border-white animate-pulse' : 'border-emerald-400 bg-emerald-500/10'
+                    }`}
                 />
 
                 {/* 4 Corner Markers with continuous Scale animation */}

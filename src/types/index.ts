@@ -81,7 +81,7 @@ export interface GameCycleState {
 
 export interface HealthState {
   calibrated: boolean;
-  waterUnit: 'cups' | 'ml';
+  waterUnit: 'ml';
   waterCount: number;
   waterTarget: number;
   lastWaterTimestamp: number;

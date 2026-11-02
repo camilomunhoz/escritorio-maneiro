@@ -27,11 +27,10 @@ export const DrawerHost: React.FC<DrawerHostProps> = ({ children }) => {
 
   return (
     <div
-      className={`fixed bottom-12 right-6 z-40 transition-all duration-300 ease-in-out transform origin-bottom-right ${
-        state.drawerOpen
+      className={`fixed bottom-12 right-6 z-40 transition-all duration-300 ease-in-out transform origin-bottom-right ${state.drawerOpen
           ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto'
           : 'translate-y-16 opacity-0 scale-95 pointer-events-none'
-      }`}
+        }`}
     >
       {/* Outer Floating Drawer Card */}
       <div
@@ -41,19 +40,17 @@ export const DrawerHost: React.FC<DrawerHostProps> = ({ children }) => {
         <div className="flex items-center justify-between px-3 py-1 h-7 bg-calm-50/90 border-b border-calm-200/70 select-none text-[11px] text-calm-600 shrink-0">
           {/* Left: App Title */}
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-sage-500" />
-            <span className="font-semibold text-calm-800 tracking-tight text-xs">Escritório Divertido</span>
+            <span className="font-semibold font-primary text-calm-800 tracking-tight text-xs">Nimbo</span>
           </div>
 
           {/* Right: Window Actions - Bell Notifications & Chevron Down Minimize */}
           <div className="flex items-center gap-1">
             <button
               onClick={handleToggleNotifications}
-              className={`p-1 rounded transition cursor-pointer relative ${
-                isNotificationsActive
+              className={`p-1 rounded transition cursor-pointer relative ${isNotificationsActive
                   ? 'text-sage-800 bg-sage-100/80'
                   : 'text-calm-500 hover:text-calm-800 hover:bg-calm-200/60'
-              }`}
+                }`}
               title="Notificações"
             >
               <Bell size={13} />

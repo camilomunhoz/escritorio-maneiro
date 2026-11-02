@@ -54,7 +54,7 @@ export const DevControls: React.FC = () => {
             className="w-full text-left px-2 py-1.5 rounded bg-white/5 hover:bg-white/10 transition text-calm-300 flex items-center gap-2 cursor-pointer"
           >
             <Droplets size={13} className="text-sage-400" />
-            <span>Simular Consumo de Água (+1)</span>
+            <span>Simular Consumo de Água (+200 ml)</span>
           </button>
           <button
             onClick={godmodeSimulatePostureAlert}

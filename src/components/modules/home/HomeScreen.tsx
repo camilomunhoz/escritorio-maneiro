@@ -115,10 +115,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className={`text-xs font-medium truncate ${isCompleted ? 'line-through text-calm-500' : 'text-calm-900'}`}>
+                    <p className={`text-xs font-medium ${isCompleted ? 'line-through text-calm-500' : 'text-calm-900'}`}>
                       {goal.title}
                     </p>
-                    <p className="text-[10px] text-calm-500 leading-tight truncate">
+                    <p className="text-[10px] text-calm-500 leading-tight">
                       {goal.description}
                     </p>
                   </div>

@@ -370,9 +370,9 @@ export const INITIAL_GAME_CYCLE: GameCycleState = {
 
 export const INITIAL_HEALTH_STATE: HealthState = {
   calibrated: false,
-  waterUnit: 'cups',
-  waterCount: 1,
-  waterTarget: 4,
+  waterUnit: 'ml',
+  waterCount: 400,
+  waterTarget: 1200,
   lastWaterTimestamp: Date.now() - 1000 * 60 * 45, // 45m ago
   postureScore: 88,
   pausesCount: 2,

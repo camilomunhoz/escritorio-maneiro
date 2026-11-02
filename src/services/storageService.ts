@@ -24,6 +24,11 @@ export function loadAppState(): AppState {
     if (!parsed.invitations || !Array.isArray(parsed.invitations) || parsed.invitations.length === 0) {
       parsed.invitations = initial.invitations;
     }
+    if (!parsed.health) {
+      parsed.health = initial.health;
+    } else if (typeof parsed.health.waterTarget !== 'number' || parsed.health.waterTarget === 2000 || parsed.health.waterTarget <= 0) {
+      parsed.health.waterTarget = 1200;
+    }
     return parsed;
   } catch (error) {
     console.warn('Falha ao ler o estado local. Restaurando padrão.', error);

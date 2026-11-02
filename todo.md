@@ -21,7 +21,7 @@
 15. [ ] melhorar display de conquistas, deve ser layout expanded
 16. [ ] criar mais medalhas e conquistas
 
-17. [ ] consertar o calculo de água quando toggle e colocar cooldown do botão; adicionar interação da água com computer viz 
+17. [x] remova o calculo baseado em copos, mantenha somente os 200ml+.
 
 18. [ ] melhorar UI do desktop e godmode bar
 18a. [ ] causar efeito de glitch sutil em toda a tela quando um cheat for utilizado

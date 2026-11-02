@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
@@ -11,7 +11,6 @@ import {
   Activity,
   Sparkles,
   Camera,
-  AlertCircle,
   Play,
 } from 'lucide-react';
 
@@ -21,22 +20,50 @@ interface HealthScreenProps {
 }
 
 export const HealthScreen: React.FC<HealthScreenProps> = ({ onOpenStretchVision, onOpenCalibration }) => {
-  const { state, registerWater, setWaterUnit, calibrateHealth } = useApp();
+  const { state, registerWater, setWaterTarget, calibrateHealth } = useApp();
   const { health } = state;
 
-  const [waterFeedback, setWaterFeedback] = useState<string | null>(null);
   const [showPostureCalibration, setShowPostureCalibration] = useState(false);
+  const [targetInput, setTargetInput] = useState(String(health.waterTarget || 1200));
+  const [cooldown, setCooldown] = useState(0);
+
+  useEffect(() => {
+    setTargetInput(String(health.waterTarget || 1200));
+  }, [health.waterTarget]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown(prev => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const handleAddWater = () => {
-    const res = registerWater(1);
-    setWaterFeedback(res.message);
-    setTimeout(() => setWaterFeedback(null), 5000);
+    if (cooldown > 0) return;
+    registerWater(200);
+    setCooldown(5);
   };
 
-  const isCups = health.waterUnit === 'cups';
-  const displayTarget = isCups ? '8 copos' : '2000 ml';
-  const displayCurrent = isCups ? `${health.waterCount} copos` : `${health.waterCount * 250} ml`;
-  const waterProgress = Math.min(100, Math.round((health.waterCount / health.waterTarget) * 100));
+  const handleTargetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setTargetInput(val);
+    const num = parseInt(val, 10);
+    if (!isNaN(num) && num >= 100) {
+      setWaterTarget(num);
+    }
+  };
+
+  const handleTargetBlur = () => {
+    const num = parseInt(targetInput, 10);
+    if (isNaN(num) || num < 100) {
+      const fallback = health.waterTarget || 1200;
+      setTargetInput(String(fallback));
+      setWaterTarget(fallback);
+    }
+  };
+
+  const waterProgress = Math.min(100, Math.round((health.waterCount / (health.waterTarget || 1200)) * 100));
 
   const postureStatus = health.postureScore >= 80 ? 'Alinhado' : 'Ajuste Recomendado';
   const postureColor = health.postureScore >= 80 ? 'text-sage-700' : 'text-sand-700';
@@ -69,28 +96,26 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({ onOpenStretchVision,
             </div>
             <div>
               <h3 className="text-xs font-semibold text-calm-900">Hidratação Inteligente</h3>
-              <p className="text-[10px] text-calm-500">Meta: {displayTarget}</p>
+              <p className="text-[10px] text-calm-500">Meta de hidratação no escritório</p>
             </div>
           </div>
 
-          {/* Unit Toggle: Copos vs mL */}
-          <div className="flex items-center bg-white rounded-lg p-0.5 border border-calm-200 text-[10px]">
-            <button
-              onClick={() => setWaterUnit('cups')}
-              className={`px-2 py-0.5 rounded font-medium transition cursor-pointer ${
-                isCups ? 'bg-sage-600 text-white' : 'text-calm-600 hover:text-calm-900'
-              }`}
-            >
-              Copos
-            </button>
-            <button
-              onClick={() => setWaterUnit('ml')}
-              className={`px-2 py-0.5 rounded font-medium transition cursor-pointer ${
-                !isCups ? 'bg-sage-600 text-white' : 'text-calm-600 hover:text-calm-900'
-              }`}
-            >
-              mL
-            </button>
+          <div className="flex items-center bg-white border border-calm-200 rounded-lg px-2 py-1 shadow-xs">
+            <label htmlFor="water-target-input" className="text-[10px] font-medium text-calm-500">
+              Meta:
+            </label>
+            <input
+              id="water-target-input"
+              type="number"
+              min={100}
+              max={3000}
+              step={100}
+              value={targetInput}
+              onChange={handleTargetChange}
+              onBlur={handleTargetBlur}
+              className="w-12 text-right text-xs font-semibold text-calm-900 bg-transparent focus:outline-none focus:ring-1 focus:ring-sage-500 rounded py-0.5"
+            />
+            <span className="text-[10px] font-medium text-calm-500">ml</span>
           </div>
         </div>
 
@@ -98,29 +123,24 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({ onOpenStretchVision,
         <div className="space-y-1">
           <div className="flex justify-between text-[11px] text-calm-600">
             <span>Consumo do Dia</span>
-            <span className="font-semibold text-calm-900">{displayCurrent} ({waterProgress}%)</span>
+            <span className="font-semibold text-calm-900">{health.waterCount} ml de {health.waterTarget} ml ({waterProgress}%)</span>
           </div>
           <ProgressBar value={health.waterCount} max={health.waterTarget} color="slate" height="sm" />
         </div>
-
-        {/* Feedback message (30-minute spacing rule notification) */}
-        {waterFeedback && (
-          <div className="text-[10px] p-2 rounded bg-amber-50 border border-amber-200 text-amber-900 leading-tight flex items-start gap-1.5">
-            <AlertCircle size={13} className="text-amber-700 shrink-0 mt-0.5" />
-            <span>{waterFeedback}</span>
-          </div>
-        )}
 
         <div className="flex items-center gap-2">
           <Button
             size="sm"
             variant="primary"
             fullWidth
+            disabled={cooldown > 0}
             onClick={handleAddWater}
             className="text-xs gap-1"
           >
             <Droplets size={12} />
-            <span>+ Registrar {isCups ? 'Copo (250 ml)' : '250 ml'}</span>
+            <span>
+              {cooldown > 0 ? `Aguarde (${cooldown}s)` : '+ Registrar 200 ml'}
+            </span>
           </Button>
         </div>
       </Card>
