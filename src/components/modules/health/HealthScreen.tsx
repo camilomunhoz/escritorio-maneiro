@@ -41,9 +41,9 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({ onOpenStretchVision 
   const postureColor = health.postureScore >= 80 ? 'text-sage-700' : 'text-sand-700';
 
   return (
-    <div className="w-full h-full flex flex-col justify-between overflow-y-auto px-4 py-3 space-y-4 select-none">
-      {/* 1. Header do Módulo de Saúde */}
-      <div className="flex items-center justify-between pb-2 border-b border-calm-200/80">
+    <div className="w-full h-full flex flex-col overflow-hidden select-none relative">
+      {/* 1. Header Fixado do Módulo de Saúde */}
+      <div className="px-4 py-2.5 border-b border-calm-200 bg-calm-50/90 flex items-center justify-between shrink-0">
         <div>
           <h2 className="text-sm font-semibold text-calm-900 flex items-center gap-1.5">
             <HeartPulse size={16} className="text-sage-700" />
@@ -55,6 +55,9 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({ onOpenStretchVision 
           {health.calibrated ? 'Calibrado' : 'Pendente'}
         </Badge>
       </div>
+
+      {/* Conteúdo Rolável */}
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 min-h-0 flex flex-col justify-between">
 
       {/* 2. Widget de Hidratação Inteligente */}
       <Card variant="subtle" padding="md" className="flex flex-col gap-3">
@@ -143,8 +146,9 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({ onOpenStretchVision 
         <Button
           size="sm"
           variant="primary"
+          fullWidth
           onClick={onOpenStretchVision}
-          className="text-xs gap-1.5 w-full bg-sage-700 hover:bg-sage-800"
+          className="text-xs gap-1.5 cursor-pointer"
         >
           <Play size={13} />
           <span>Iniciar Alongamento</span>
@@ -174,6 +178,7 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({ onOpenStretchVision 
           <Camera size={12} />
           <span>Calibrar</span>
         </Button>
+      </div>
       </div>
 
       {/* Modal de Calibração Rápida de Postura se aberto */}

@@ -35,7 +35,7 @@ interface AppContextValue {
   registerWater: (amount?: number) => { success: boolean; message: string };
   setWaterUnit: (unit: 'cups' | 'ml') => void;
   calibrateHealth: (postureScore: number) => void;
-  completeStretch: () => void;
+  completeStretch: (repsCompleted?: number, sessionScore?: number) => void;
   // Social Operations
   sendFriendRequest: (coworkerId: string) => void;
   acceptFriendRequest: (coworkerId: string) => void;
@@ -459,22 +459,26 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   }, []);
 
-  const completeStretch = useCallback(() => {
+  const completeStretch = useCallback((repsCompleted = 1, sessionScore = 25) => {
+    if (repsCompleted <= 0) return;
     setState(prev => {
-      const newStretches = prev.health.stretchesCompleted + 1;
-      const newXP = prev.user.xp + 25;
+      const xpEarned = Math.min(100, Math.max(15, Math.round(sessionScore * 0.6)));
+      const newStretches = prev.health.stretchesCompleted + repsCompleted;
+      const newXP = prev.user.xp + xpEarned;
       const newLevel = Math.floor(newXP / 100) + 1;
+      const postureGain = Math.min(15, repsCompleted * 5);
       return {
         ...prev,
         health: {
           ...prev.health,
+          calibrated: true,
           stretchesCompleted: newStretches,
-          postureScore: Math.min(98, prev.health.postureScore + 10),
+          postureScore: Math.min(98, prev.health.postureScore + postureGain),
         },
         user: {
           ...prev.user,
           xp: newXP,
-          xpHealth: prev.user.xpHealth + 25,
+          xpHealth: prev.user.xpHealth + xpEarned,
           level: newLevel,
         },
       };

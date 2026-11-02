@@ -13,7 +13,7 @@ import { HomeScreen } from './components/modules/home/HomeScreen';
 import { GamesScreen } from './components/modules/games/GamesScreen';
 import { GamePlayerExpanded } from './components/modules/games/GamePlayerExpanded';
 import { HealthScreen } from './components/modules/health/HealthScreen';
-import { StretchVisionExpanded } from './components/modules/health/StretchVisionExpanded';
+import { GuidedStretchModal } from './components/modules/health/GuidedStretchModal';
 import { SocialScreen } from './components/modules/social/SocialScreen';
 import { MenuScreen } from './components/modules/menu/MenuScreen';
 import { CoworkerProfileModal } from './components/modules/menu/CoworkerProfileModal';
@@ -118,7 +118,7 @@ const DrawerContent: React.FC = () => {
       return <GamePlayerExpanded />;
     }
     if (state.currentTab === 'health') {
-      return <StretchVisionExpanded onClose={() => setDrawerMode('normal')} />;
+      return <GuidedStretchModal onClose={() => setDrawerMode('normal')} />;
     }
     // Default expanded view for games/work
     return <GamePlayerExpanded />;
@@ -128,7 +128,7 @@ const DrawerContent: React.FC = () => {
   return (
     <div className="w-full h-full flex flex-col justify-between bg-white relative overflow-hidden">
       {/* Tab Screen Content */}
-      <main className="flex-1 overflow-y-auto min-h-0">
+      <main className="flex-1 overflow-hidden min-h-0">
         {state.currentTab === 'home' && (
           <HomeScreen
             onOpenMedals={() => setShowGlobalMedals(true)}

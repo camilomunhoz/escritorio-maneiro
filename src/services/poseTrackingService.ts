@@ -40,23 +40,40 @@ export interface FixedTargets {
   radius: number;
 }
 
+export type PosePresetKey = 'diagonal' | 't_stretch' | 'overhead' | 'dynamic_auto';
+
 export interface PosePreset {
-  id: string;
+  id: PosePresetKey;
   name: string;
   shortName: string;
+  sub: string;
   desc: string;
   alpha: number;
   beta: number;
   dirLeft: Point2D;
   dirRight: Point2D;
+  isAuto?: boolean;
 }
 
-export const POSE_PRESETS: Record<string, PosePreset> = {
+export const POSE_PRESETS: Record<PosePresetKey, PosePreset> = {
+  dynamic_auto: {
+    id: 'dynamic_auto',
+    name: 'Treino Dinâmico',
+    shortName: 'Treino Dinâmico',
+    sub: 'Alterna os movimentos a cada repetição',
+    desc: 'Estique os braços até os círculos na tela. A cada série concluída, um novo movimento começa.',
+    alpha: 1.8,
+    beta: 0.55,
+    dirLeft: { x: -0.76, y: -0.65 },
+    dirRight: { x: 0.76, y: -0.65 },
+    isAuto: true,
+  },
   diagonal: {
     id: 'diagonal',
-    name: 'Alongamento Diagonal Superior (Y)',
-    shortName: 'Diagonal Superior',
-    desc: 'Estique ambos os braços para cima e para fora em diagonal (formato de Y).',
+    name: 'Alcance Diagonal',
+    shortName: 'Alcance Diagonal',
+    sub: 'Alivia a tensão do peito e das costas',
+    desc: 'Estique os dois braços para cima e para fora, em direção aos círculos na tela.',
     alpha: 1.8,
     beta: 0.55,
     dirLeft: { x: -0.76, y: -0.65 },
@@ -64,9 +81,10 @@ export const POSE_PRESETS: Record<string, PosePreset> = {
   },
   t_stretch: {
     id: 't_stretch',
-    name: 'Abertura Lateral em T',
-    shortName: 'Lateral em T',
-    desc: 'Abra os braços horizontalmente nas laterais na altura dos ombros, expandindo o peitoral.',
+    name: 'Abertura Lateral',
+    shortName: 'Abertura Lateral',
+    sub: 'Abre o peito e relaxa os ombros',
+    desc: 'Abra os dois braços para os lados, na altura dos ombros, até alcançar os círculos.',
     alpha: 2.15,
     beta: 0.08,
     dirLeft: { x: -1.0, y: -0.05 },
@@ -74,9 +92,10 @@ export const POSE_PRESETS: Record<string, PosePreset> = {
   },
   overhead: {
     id: 'overhead',
-    name: 'Elevação Vertical Alta',
-    shortName: 'Vertical Alto',
-    desc: 'Estique os braços para cima da cabeça, alongando toda a coluna e dorsais.',
+    name: 'Alcance no Alto',
+    shortName: 'Alcance no Alto',
+    sub: 'Alonga os braços e toda a coluna',
+    desc: 'Levante os dois braços acima da cabeça até tocar os círculos iluminados.',
     alpha: 0.9,
     beta: 1.15,
     dirLeft: { x: -0.22, y: -0.975 },
@@ -84,8 +103,15 @@ export const POSE_PRESETS: Record<string, PosePreset> = {
   },
 };
 
+export const AUTO_CYCLE_POSES: Array<'diagonal' | 't_stretch' | 'overhead'> = [
+  'diagonal',
+  't_stretch',
+  'overhead',
+];
+
 /**
  * Exponential Moving Average (EMA) Filter for Landmark coordinates
+ * Eliminates camera jitter while maintaining responsive tracking.
  */
 export class PointFilterEMA {
   private alpha: number;
@@ -114,7 +140,7 @@ export class PointFilterEMA {
       return { ...this.value };
     }
 
-    // Teleport threshold check (jump > 35% of frame)
+    // Teleport threshold check (if distance jumped by more than 35% of frame, snap directly)
     const distSq = (point.x - this.value.x) ** 2 + (point.y - this.value.y) ** 2;
     if (distSq > 0.12) {
       this.value = { x: point.x, y: point.y };
@@ -130,9 +156,10 @@ export class PointFilterEMA {
 }
 
 /**
- * Filter manager for upper body landmarks
+ * Filter manager for key upper body landmarks
  */
 export class BodyTrackingFilter {
+  private alpha: number;
   private filters: {
     leftShoulder: PointFilterEMA;
     rightShoulder: PointFilterEMA;
@@ -145,6 +172,7 @@ export class BodyTrackingFilter {
   };
 
   constructor(alpha = 0.65) {
+    this.alpha = alpha;
     this.filters = {
       leftShoulder: new PointFilterEMA(alpha),
       rightShoulder: new PointFilterEMA(alpha),
@@ -157,6 +185,15 @@ export class BodyTrackingFilter {
     };
   }
 
+  setAlpha(alpha: number) {
+    this.alpha = alpha;
+    Object.values(this.filters).forEach(f => f.setAlpha(alpha));
+  }
+
+  getAlpha(): number {
+    return this.alpha;
+  }
+
   reset() {
     Object.values(this.filters).forEach(f => f.reset());
   }
@@ -167,6 +204,10 @@ export class BodyTrackingFilter {
       return null;
     }
 
+    // Left Shoulder: 11, Right Shoulder: 12
+    // Left Elbow: 13, Right Elbow: 14
+    // Left Wrist: 15, Right Wrist: 16
+    // Left Hip: 23, Right Hip: 24
     const hasHips = landmarks.length > 24;
     return {
       leftShoulder: this.filters.leftShoulder.filter(landmarks[11]),
@@ -182,15 +223,70 @@ export class BodyTrackingFilter {
   }
 }
 
+export interface PoseDetectionResult {
+  landmarks?: LandmarkPoint[][];
+  worldLandmarks?: LandmarkPoint[][];
+}
+
+export interface MediaPipePoseLandmarker {
+  detectForVideo: (video: HTMLVideoElement, timestamp: number) => PoseDetectionResult;
+  close?: () => void;
+}
+
+interface MediaPipeVisionModule {
+  FilesetResolver: {
+    forVisionTasks: (wasmPath: string) => Promise<unknown>;
+  };
+  PoseLandmarker: {
+    createFromOptions: (vision: unknown, options: Record<string, unknown>) => Promise<MediaPipePoseLandmarker>;
+  };
+}
+
 /**
- * Generates synthetic realistic landmarks for Demo / Simulation mode
+ * Initializes MediaPipe PoseLandmarker via CDN WebAssembly with GPU -> CPU fallback
+ */
+export async function createMediaPipePoseLandmarker(): Promise<MediaPipePoseLandmarker> {
+  const cdnUrl = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest';
+  const visionModule = (await import(/* @vite-ignore */ cdnUrl)) as unknown as MediaPipeVisionModule;
+
+  const vision = await visionModule.FilesetResolver.forVisionTasks(
+    'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+  );
+
+  const modelAssetPath =
+    'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+
+  try {
+    return await visionModule.PoseLandmarker.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath,
+        delegate: 'GPU',
+      },
+      runningMode: 'VIDEO',
+      numPoses: 1,
+    });
+  } catch {
+    return await visionModule.PoseLandmarker.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath,
+        delegate: 'CPU',
+      },
+      runningMode: 'VIDEO',
+      numPoses: 1,
+    });
+  }
+}
+
+/**
+ * Generates realistic simulated landmarks with proper framing, T-Pose and locked targets
  */
 export function generateVirtualPose(
   sessionState: 'STOPPED' | 'FRAMING' | 'TPOSE' | 'LOCKED' | 'PLAYING',
   time: number,
   fixedTargets: FixedTargets | null,
-  canvasWidth = 720,
-  canvasHeight = 460
+  canvasWidth = 510,
+  canvasHeight = 460,
+  mirrorCamera = true
 ): { landmarks: LandmarkPoint[]; worldLandmarks: LandmarkPoint[] } {
   const fakeLandmarks: LandmarkPoint[] = new Array(33).fill(null).map(() => ({
     x: 0.5,
@@ -199,8 +295,8 @@ export function generateVirtualPose(
     visibility: 0.99,
   }));
 
-  fakeLandmarks[11] = { x: 0.6, y: 0.42, z: 0, visibility: 0.99 }; // Left shoulder
-  fakeLandmarks[12] = { x: 0.4, y: 0.42, z: 0, visibility: 0.99 }; // Right shoulder
+  fakeLandmarks[11] = { x: 0.60, y: 0.42, z: 0, visibility: 0.99 }; // Left shoulder
+  fakeLandmarks[12] = { x: 0.40, y: 0.42, z: 0, visibility: 0.99 }; // Right shoulder
   fakeLandmarks[23] = { x: 0.56, y: 0.74, z: 0, visibility: 0.99 }; // Left hip
   fakeLandmarks[24] = { x: 0.44, y: 0.74, z: 0, visibility: 0.99 }; // Right hip
 
@@ -210,34 +306,34 @@ export function generateVirtualPose(
   let curRightWristY = 0.68;
 
   if (sessionState === 'FRAMING') {
-    // Relaxed arms near hips
+    // Arms resting relaxed near hips
     curLeftWristX = 0.62;
     curLeftWristY = 0.68;
     curRightWristX = 0.38;
     curRightWristY = 0.68;
   } else if (sessionState === 'TPOSE') {
-    // Horizontal T-Pose (mirrored: left wrist at raw x=0.82, right wrist at raw x=0.18)
+    // Horizontal T-Pose (mirrored: left wrist is at raw x=0.82, right wrist at raw x=0.18)
     curLeftWristX = 0.82;
     curLeftWristY = 0.42;
     curRightWristX = 0.18;
     curRightWristY = 0.42;
   } else {
-    // LOCKED or PLAYING: stretch towards static fixed targets
+    // LOCKED or PLAYING: stretch into static targets
     let targetLeftRaw = { x: 0.78, y: 0.24 };
     let targetRightRaw = { x: 0.22, y: 0.24 };
 
     if (fixedTargets) {
       targetLeftRaw = {
-        x: 1 - fixedTargets.left.x / canvasWidth,
+        x: mirrorCamera ? 1 - fixedTargets.left.x / canvasWidth : fixedTargets.left.x / canvasWidth,
         y: fixedTargets.left.y / canvasHeight,
       };
       targetRightRaw = {
-        x: 1 - fixedTargets.right.x / canvasWidth,
+        x: mirrorCamera ? 1 - fixedTargets.right.x / canvasWidth : fixedTargets.right.x / canvasWidth,
         y: fixedTargets.right.y / canvasHeight,
       };
     }
 
-    // 6.5s smooth stretching cycle
+    // 6.5s cycle for stretching
     const cycle = time % 6.5;
     let reach = 0;
     if (cycle < 1.5) reach = cycle / 1.5;
@@ -256,9 +352,9 @@ export function generateVirtualPose(
   }
 
   // Elbows halfway between shoulder and wrist
-  const leftElbowX = 0.6 + (curLeftWristX - 0.6) * 0.52;
+  const leftElbowX = 0.60 + (curLeftWristX - 0.60) * 0.52;
   const leftElbowY = 0.42 + (curLeftWristY - 0.42) * 0.52;
-  const rightElbowX = 0.4 + (curRightWristX - 0.4) * 0.52;
+  const rightElbowX = 0.40 + (curRightWristX - 0.40) * 0.52;
   const rightElbowY = 0.42 + (curRightWristY - 0.42) * 0.52;
 
   fakeLandmarks[13] = { x: leftElbowX, y: leftElbowY, z: 0, visibility: 0.99 };
@@ -266,7 +362,7 @@ export function generateVirtualPose(
   fakeLandmarks[15] = { x: curLeftWristX, y: curLeftWristY, z: 0, visibility: 0.99 };
   fakeLandmarks[16] = { x: curRightWristX, y: curRightWristY, z: 0, visibility: 0.99 };
 
-  // World landmarks (metric simulation)
+  // Simulated metric world landmarks (arm length 0.68m, wingspan 1.72m)
   const fakeWorld: LandmarkPoint[] = new Array(33).fill(null).map(() => ({ x: 0, y: 0, z: 0 }));
   fakeWorld[11] = { x: 0.18, y: -0.25, z: 0 };
   fakeWorld[12] = { x: -0.18, y: -0.25, z: 0 };

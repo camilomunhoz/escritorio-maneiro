@@ -37,15 +37,18 @@ export const MenuScreen: React.FC = () => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className="w-full h-full flex flex-col justify-between overflow-y-auto px-4 py-3 space-y-4 select-none">
-      {/* 1. Header do Menu */}
-      <div className="flex items-center justify-between pb-2 border-b border-calm-200/80">
+    <div className="w-full h-full flex flex-col overflow-hidden select-none relative">
+      {/* 1. Header Fixado do Menu */}
+      <div className="px-4 py-2.5 border-b border-calm-200 bg-calm-50/90 flex items-center justify-between shrink-0">
         <div>
           <h2 className="text-sm font-semibold text-calm-900">Menu & Configurações</h2>
           <p className="text-[11px] text-calm-500">Notificações, preferências e conquistas</p>
         </div>
         <Badge variant="calm" size="sm">Versão 1.0</Badge>
       </div>
+
+      {/* Conteúdo Rolável */}
+      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 min-h-0 flex flex-col justify-between">
 
       {/* 2. Central de Notificações */}
       <div className="bg-white rounded-xl border border-calm-200 p-3 shadow-soft flex flex-col gap-2">
@@ -193,6 +196,7 @@ export const MenuScreen: React.FC = () => {
         <p className="text-[10px] text-calm-600 leading-tight">
           Nenhum dado biométrico ou imagem de câmera sai do seu computador. Os registros são processados exclusivamente de forma local.
         </p>
+      </div>
       </div>
 
       {/* Modals */}
