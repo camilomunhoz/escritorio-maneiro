@@ -1,6 +1,6 @@
-export type DrawerMode = 'normal' | 'expanded' | 'compact';
+export type DrawerMode = 'normal' | 'expanded';
 
-export type NavigationTab = 'home' | 'games' | 'health' | 'social' | 'menu';
+export type NavigationTab = 'home' | 'games' | 'health' | 'social' | 'menu' | 'notifications';
 
 export interface User {
   id: string;
@@ -123,7 +123,8 @@ export interface NotificationItem {
   message: string;
   timestamp: number;
   read: boolean;
-  category: 'medal' | 'social' | 'health' | 'system';
+  category: 'medal' | 'social' | 'health' | 'system' | 'games';
+  goToTab?: NavigationTab;
 }
 
 export interface AppState {

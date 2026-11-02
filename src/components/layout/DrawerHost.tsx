@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { X, Minus } from 'lucide-react';
+import { Bell, ChevronDown } from 'lucide-react';
 import type { DrawerMode } from '../../types';
 
 export interface DrawerHostProps {
@@ -8,13 +8,19 @@ export interface DrawerHostProps {
 }
 
 export const DrawerHost: React.FC<DrawerHostProps> = ({ children }) => {
-  const { state, setDrawerOpen } = useApp();
+  const { state, setDrawerOpen, showNotifications, setShowNotifications } = useApp();
+
+  const unreadNotificationsCount = state.notifications.filter(n => !n.read).length;
+  const isNotificationsActive = showNotifications;
+
+  const handleToggleNotifications = () => {
+    setShowNotifications(prev => !prev);
+  };
 
   // Width and height mapping according to explicit specifications
   const dimensionClasses: Record<DrawerMode, string> = {
     normal: 'w-[350px] h-[500px]',
     expanded: 'w-[750px] h-[500px]',
-    compact: 'w-[350px] h-[50px]',
   };
 
   const currentDimensionClass = dimensionClasses[state.drawerMode] || dimensionClasses.normal;
@@ -39,21 +45,31 @@ export const DrawerHost: React.FC<DrawerHostProps> = ({ children }) => {
             <span className="font-semibold text-calm-800 tracking-tight text-xs">Escritório Divertido</span>
           </div>
 
-          {/* Right: Window Actions */}
-          <div className="flex items-center gap-0.5">
+          {/* Right: Window Actions - Bell Notifications & Chevron Down Minimize */}
+          <div className="flex items-center gap-1">
             <button
-              onClick={() => setDrawerOpen(false)}
-              className="p-1 rounded text-calm-400 hover:text-calm-700 hover:bg-calm-200/60 transition cursor-pointer"
-              title="Minimizar para a bandeja"
+              onClick={handleToggleNotifications}
+              className={`p-1 rounded transition cursor-pointer relative ${
+                isNotificationsActive
+                  ? 'text-sage-800 bg-sage-100/80'
+                  : 'text-calm-500 hover:text-calm-800 hover:bg-calm-200/60'
+              }`}
+              title="Notificações"
             >
-              <Minus size={13} />
+              <Bell size={13} />
+              {unreadNotificationsCount > 0 && (
+                <span
+                  className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"
+                  title={`${unreadNotificationsCount} novas notificações`}
+                />
+              )}
             </button>
             <button
               onClick={() => setDrawerOpen(false)}
-              className="p-1 rounded text-calm-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-              title="Fechar"
+              className="p-1 rounded text-calm-500 hover:text-calm-800 hover:bg-calm-200/60 transition cursor-pointer"
+              title="Recolher janela"
             >
-              <X size={13} />
+              <ChevronDown size={14} />
             </button>
           </div>
         </div>

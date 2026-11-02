@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderboardEntry } from '../types';
+import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderboardEntry, NotificationItem } from '../types';
 import { loadAppState, saveAppState, resetAppState } from '../services/storageService';
 
 interface AppContextValue {
@@ -43,12 +43,16 @@ interface AppContextValue {
   createInvitation: (coworkerId: string, type: 'cafe' | 'almoco' | 'sol' | 'conversa') => void;
   updateUserInterests: (interests: string[]) => void;
   markNotificationsRead: () => void;
+  markNotificationItemRead: (id: string) => void;
+  showNotifications: boolean;
+  setShowNotifications: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<AppState>(() => loadAppState());
+  const [showNotifications, setShowNotifications] = useState<boolean>(false);
 
   const [isGodmodeOpen, setGodmodeOpen] = useState<boolean>(false);
   const toggleGodmode = useCallback(() => {
@@ -206,8 +210,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const godmodeUnlockNextGame = useCallback(() => {
     setState(prev => {
       const nextGame = getNextGameType(prev.gameCycle.currentGame);
+      const gameNames: Record<GameType, string> = {
+        cobrinha: 'Cobrinha',
+        pong: 'Pong',
+        termo: 'Termo',
+      };
+      const gameName = gameNames[nextGame] || 'Novo Jogo';
+      const newGameNotif: NotificationItem = {
+        id: `notif-game-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        title: 'Novo jogo liberado!',
+        message: `${gameName} está disponível para uma pausa rápida. Aproveite!`,
+        timestamp: Date.now(),
+        read: false,
+        category: 'games',
+        goToTab: 'games',
+      };
       return {
         ...prev,
+        notifications: [newGameNotif, ...prev.notifications],
         gameCycle: {
           ...prev.gameCycle,
           currentGame: nextGame,
@@ -363,8 +383,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const advanceGameCycle = useCallback(() => {
     setState(prev => {
       const nextGame = getNextGameType(prev.gameCycle.currentGame);
+      const gameNames: Record<GameType, string> = {
+        cobrinha: 'Cobrinha',
+        pong: 'Pong',
+        termo: 'Termo',
+      };
+      const gameName = gameNames[nextGame] || 'Novo Jogo';
+      const newGameNotif: NotificationItem = {
+        id: `notif-game-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        title: 'Novo jogo liberado!',
+        message: `${gameName} está disponível para uma pausa rápida. Aproveite!`,
+        timestamp: Date.now(),
+        read: false,
+        category: 'games',
+        goToTab: 'games',
+      };
       return {
         ...prev,
+        notifications: [newGameNotif, ...prev.notifications],
         gameCycle: {
           ...prev.gameCycle,
           currentGame: nextGame,
@@ -567,6 +603,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   }, []);
 
+  const markNotificationItemRead = useCallback((id: string) => {
+    setState(prev => ({
+      ...prev,
+      notifications: prev.notifications.map(n => (n.id === id ? { ...n, read: true } : n)),
+    }));
+  }, []);
+
   const value: AppContextValue = {
     state,
     setDrawerOpen,
@@ -603,6 +646,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     createInvitation,
     updateUserInterests,
     markNotificationsRead,
+    markNotificationItemRead,
+    showNotifications,
+    setShowNotifications,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

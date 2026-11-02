@@ -1,7 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
 import { RefreshCw, Zap, Droplets, UserCheck, Sparkles, X, Sliders, RotateCcw } from 'lucide-react';
-import { Button } from '../ui/Button';
 
 export const DevControls: React.FC = () => {
   const {
@@ -16,8 +15,6 @@ export const DevControls: React.FC = () => {
     toggleVacationMode,
     resetAllData,
     reopenOnboarding,
-    setDrawerOpen,
-    setDrawerMode,
   } = useApp();
 
   if (!isGodmodeOpen) {
@@ -40,22 +37,6 @@ export const DevControls: React.FC = () => {
           >
             <X size={14} />
           </button>
-        </div>
-
-        {/* Drawer Modes for testing */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[10px] uppercase tracking-wider text-calm-400 font-medium">Visualização do Drawer</span>
-          <div className="grid grid-cols-3 gap-1">
-            <Button size="sm" variant="subtle" onClick={() => { setDrawerOpen(true); setDrawerMode('compact'); }}>
-              Compacto
-            </Button>
-            <Button size="sm" variant="subtle" onClick={() => { setDrawerOpen(true); setDrawerMode('normal'); }}>
-              Normal
-            </Button>
-            <Button size="sm" variant="subtle" onClick={() => { setDrawerOpen(true); setDrawerMode('expanded'); }}>
-              Expandido
-            </Button>
-          </div>
         </div>
 
         {/* Bypass & Events */}

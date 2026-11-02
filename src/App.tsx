@@ -1,76 +1,120 @@
 import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
-import type { Coworker } from './types';
+import type { Coworker, NavigationTab } from './types';
 import { DesktopContainer } from './components/layout/DesktopContainer';
 import { DrawerHost } from './components/layout/DrawerHost';
 import { DevControls } from './components/layout/DevControls';
 import { BottomNav } from './components/layout/BottomNav';
-import { AvatarSvg } from './components/ui/AvatarSvg';
-import { Badge } from './components/ui/Badge';
-import { Flame, Maximize2 } from 'lucide-react';
 import { OnboardingContainer } from './components/modules/onboarding/OnboardingContainer';
 import { HomeScreen } from './components/modules/home/HomeScreen';
 import { GamesScreen } from './components/modules/games/GamesScreen';
 import { GamePlayerExpanded } from './components/modules/games/GamePlayerExpanded';
 import { HealthScreen } from './components/modules/health/HealthScreen';
 import { GuidedStretchModal } from './components/modules/health/GuidedStretchModal';
+import { PostureCalibrationModal } from './components/modules/health/PostureCalibrationModal';
+import { FacialDetectionModal } from './components/modules/menu/FacialDetectionModal';
 import { SocialScreen } from './components/modules/social/SocialScreen';
-import { MenuScreen } from './components/modules/menu/MenuScreen';
 import { CoworkerProfileModal } from './components/modules/menu/CoworkerProfileModal';
 import { MedalsShowcaseModal } from './components/modules/menu/MedalsShowcaseModal';
 import { InvitationModal } from './components/modules/social/InvitationModal';
 import { SharedGoalExpandedModal } from './components/modules/home/SharedGoalExpandedModal';
+import { NotificationsScreen } from './components/modules/notifications/NotificationsScreen';
+import { MenuPopup } from './components/modules/menu/MenuPopup';
+import { SettingsModal } from './components/modules/menu/SettingsModal';
+import { AvatarCustomizerModal } from './components/modules/menu/AvatarCustomizerModal';
 
 const DrawerContent: React.FC = () => {
-  const { state, setDrawerMode, setCurrentTab, createInvitation } = useApp();
+  const {
+    state,
+    setDrawerMode,
+    setCurrentTab,
+    createInvitation,
+    showNotifications,
+    setShowNotifications,
+    calibrateHealth,
+  } = useApp();
 
+  // Active expanded environments
+  const [isPlayingGame, setIsPlayingGame] = useState<boolean>(false);
+  const [showSharedGoal, setShowSharedGoal] = useState<boolean>(false);
+  const [showStretchVision, setShowStretchVision] = useState<boolean>(false);
+  const [showPostureCalibration, setShowPostureCalibration] = useState<boolean>(false);
+  const [showFacialDetection, setShowFacialDetection] = useState<boolean>(false);
+  const [showGlobalMedals, setShowGlobalMedals] = useState<boolean>(false);
+  const [showAvatarModal, setShowAvatarModal] = useState<boolean>(false);
+
+  // Normal overlays
   const [selectedCoworkerProfile, setSelectedCoworkerProfile] = useState<Coworker | null>(null);
   const [showOwnProfile, setShowOwnProfile] = useState<boolean>(false);
-  const [showSharedGoal, setShowSharedGoal] = useState<boolean>(false);
   const [coworkerToInvite, setCoworkerToInvite] = useState<Coworker | null>(null);
-  const [showGlobalMedals, setShowGlobalMedals] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+
+  const isPopoverActive = Boolean(
+    showOwnProfile || showAvatarModal || showGlobalMedals || showSettingsModal
+  );
+
+  const isExpanded = Boolean(
+    isPlayingGame ||
+    showSharedGoal ||
+    showStretchVision ||
+    showPostureCalibration ||
+    showFacialDetection ||
+    showAvatarModal ||
+    showGlobalMedals
+  );
+
+  // Synchronize drawer structure whenever an expanded environment opens or closes
+  React.useEffect(() => {
+    setDrawerMode(isExpanded ? 'expanded' : 'normal');
+  }, [isExpanded, setDrawerMode]);
+
+  const closeAllOverlays = React.useCallback(() => {
+    setShowOwnProfile(false);
+    setShowSettingsModal(false);
+    setShowAvatarModal(false);
+    setShowGlobalMedals(false);
+    setShowSharedGoal(false);
+    setShowStretchVision(false);
+    setShowPostureCalibration(false);
+    setShowFacialDetection(false);
+    setSelectedCoworkerProfile(null);
+    setCoworkerToInvite(null);
+    setIsMenuOpen(false);
+  }, []);
+
+  const handleSelectTab = (tabId: NavigationTab) => {
+    closeAllOverlays();
+    setIsPlayingGame(false);
+    setShowStretchVision(false);
+    setShowPostureCalibration(false);
+    setShowFacialDetection(false);
+    setCurrentTab(tabId);
+  };
+
+  // Close overlays on tab navigation
+  React.useEffect(() => {
+    closeAllOverlays();
+  }, [state.currentTab, closeAllOverlays]);
 
   // If onboarding is not completed, render the full onboarding flow
   if (!state.onboardingCompleted) {
     return <OnboardingContainer />;
   }
 
-  // 1. Compact Mode View (50px height)
-  if (state.drawerMode === 'compact') {
-    return (
-      <div className="w-full h-full flex items-center justify-between px-3 bg-calm-50 text-xs">
-        <div className="flex items-center gap-2">
-          <AvatarSvg color={state.user.avatarColor} size="sm" />
-          <span className="font-semibold text-calm-800">{state.user.name}</span>
-          <Badge variant="sage" size="sm">Nvl {state.user.level}</Badge>
-        </div>
+  // 1. Expanded Mode View (750x500px)
+  // Structural definition: environments that need 750px always render full expanded view
+  if (isExpanded) {
+    let expandedBody: React.ReactNode = null;
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-terracottaMuted-700 font-semibold text-[11px]">
-            <Flame size={12} className="fill-terracottaMuted-500 text-terracottaMuted-500" />
-            <span>{state.user.streak}d</span>
-          </div>
-          <button
-            onClick={() => setDrawerMode('normal')}
-            className="p-1 rounded text-calm-500 hover:text-calm-900 transition cursor-pointer"
-            title="Expandir para modo Normal"
-          >
-            <Maximize2 size={13} />
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // 2. Expanded Mode View (750x500px)
-  if (state.drawerMode === 'expanded') {
-    if (showSharedGoal) {
-      return (
+    if (isPlayingGame) {
+      expandedBody = <GamePlayerExpanded onExit={() => setIsPlayingGame(false)} />;
+    } else if (showSharedGoal) {
+      expandedBody = (
         <div className="w-full h-full relative overflow-hidden">
           <SharedGoalExpandedModal
             onClose={() => {
               setShowSharedGoal(false);
-              setDrawerMode('normal');
             }}
             onOpenProfile={(coworker, isOwn) => {
               if (isOwn) {
@@ -113,62 +157,180 @@ const DrawerContent: React.FC = () => {
           )}
         </div>
       );
+    } else if (showStretchVision) {
+      expandedBody = <GuidedStretchModal onClose={() => setShowStretchVision(false)} />;
+    } else if (showPostureCalibration) {
+      expandedBody = (
+        <PostureCalibrationModal
+          onClose={() => setShowPostureCalibration(false)}
+          onCalibrate={score => {
+            calibrateHealth(score);
+            setShowPostureCalibration(false);
+          }}
+        />
+      );
+    } else if (showFacialDetection) {
+      expandedBody = (
+        <FacialDetectionModal
+          onClose={() => setShowFacialDetection(false)}
+        />
+      );
+    } else if (showAvatarModal) {
+      expandedBody = <AvatarCustomizerModal onClose={() => setShowAvatarModal(false)} />;
+    } else if (showGlobalMedals) {
+      expandedBody = <MedalsShowcaseModal onClose={() => setShowGlobalMedals(false)} />;
     }
-    if (state.currentTab === 'games') {
-      return <GamePlayerExpanded />;
-    }
-    if (state.currentTab === 'health') {
-      return <GuidedStretchModal onClose={() => setDrawerMode('normal')} />;
-    }
-    // Default expanded view for games/work
-    return <GamePlayerExpanded />;
+
+    return (
+      <div className="w-full h-full relative overflow-hidden">
+        {expandedBody}
+
+        {/* Notifications above everything in expanded mode */}
+        {showNotifications && (
+          <NotificationsScreen
+            onClose={() => setShowNotifications(false)}
+            onOpenMedals={() => {
+              setShowNotifications(false);
+              setShowGlobalMedals(true);
+            }}
+          />
+        )}
+      </div>
+    );
   }
 
-  // 3. Normal Mode View (350x500px) with Bottom Navigation
+  // 2. Normal Mode View (350x500px) with Bottom Navigation
   return (
     <div className="w-full h-full flex flex-col justify-between bg-white relative overflow-hidden">
       {/* Tab Screen Content */}
-      <main className="flex-1 overflow-hidden min-h-0">
+      <main className="flex-1 overflow-hidden min-h-0 relative">
         {state.currentTab === 'home' && (
           <HomeScreen
-            onOpenMedals={() => setShowGlobalMedals(true)}
-            onOpenOwnProfile={() => setShowOwnProfile(true)}
+            onOpenMedals={() => {
+              closeAllOverlays();
+              setShowGlobalMedals(true);
+            }}
+            onOpenOwnProfile={() => {
+              closeAllOverlays();
+              setShowOwnProfile(true);
+            }}
             onOpenSharedGoal={() => {
+              closeAllOverlays();
               setShowSharedGoal(true);
-              setDrawerMode('expanded');
             }}
           />
         )}
         {state.currentTab === 'games' && (
           <GamesScreen
-            onOpenCoworkerProfile={cw => setSelectedCoworkerProfile(cw)}
-            onOpenOwnProfile={() => setShowOwnProfile(true)}
+            onOpenCoworkerProfile={cw => {
+              closeAllOverlays();
+              setSelectedCoworkerProfile(cw);
+            }}
+            onOpenOwnProfile={() => {
+              closeAllOverlays();
+              setShowOwnProfile(true);
+            }}
+            onStartGame={() => {
+              setIsPlayingGame(true);
+            }}
           />
         )}
         {state.currentTab === 'health' && (
           <HealthScreen
             onOpenStretchVision={() => {
-              setCurrentTab('health');
-              setDrawerMode('expanded');
+              closeAllOverlays();
+              setShowStretchVision(true);
+            }}
+            onOpenCalibration={() => {
+              closeAllOverlays();
+              setShowPostureCalibration(true);
             }}
           />
         )}
         {state.currentTab === 'social' && (
           <SocialScreen
-            onOpenCoworkerProfile={cw => setSelectedCoworkerProfile(cw)}
+            onOpenCoworkerProfile={cw => {
+              closeAllOverlays();
+              setSelectedCoworkerProfile(cw);
+            }}
           />
         )}
-        {state.currentTab === 'menu' && <MenuScreen />}
+        {state.currentTab === 'notifications' && (
+          <NotificationsScreen
+            onClose={() => setCurrentTab('home')}
+            onOpenMedals={() => {
+              closeAllOverlays();
+              setShowGlobalMedals(true);
+            }}
+          />
+        )}
+        {state.currentTab === 'menu' && (
+          <SettingsModal
+            onClose={() => setCurrentTab('home')}
+            onEditInterests={() => {
+              closeAllOverlays();
+              setShowOwnProfile(true);
+            }}
+            onOpenFacialDetection={() => {
+              closeAllOverlays();
+              setShowFacialDetection(true);
+            }}
+          />
+        )}
+
+        {/* Settings Modal (Overlay inside main, perfectly aligned with BottomNav with 0 gap) */}
+        {showSettingsModal && (
+          <SettingsModal
+            onClose={closeAllOverlays}
+            onEditInterests={() => {
+              closeAllOverlays();
+              setShowOwnProfile(true);
+            }}
+            onOpenFacialDetection={() => {
+              closeAllOverlays();
+              setShowFacialDetection(true);
+            }}
+          />
+        )}
       </main>
 
       {/* Fixed Bottom Navigation (5 tabs) */}
-      <BottomNav />
+      <BottomNav
+        isMenuOpen={isMenuOpen}
+        isPopoverActive={isPopoverActive}
+        onToggleMenu={() => {
+          setIsMenuOpen(prev => !prev);
+        }}
+        onTabSelect={handleSelectTab}
+      />
 
-      {/* Global Modals */}
+      {/* Menu Popup (Meu Perfil, Meu Avatar, Conquistas, Configurações) */}
+      <MenuPopup
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onOpenProfile={() => {
+          closeAllOverlays();
+          setShowOwnProfile(true);
+        }}
+        onOpenAvatar={() => {
+          closeAllOverlays();
+          setShowAvatarModal(true);
+        }}
+        onOpenMedals={() => {
+          closeAllOverlays();
+          setShowGlobalMedals(true);
+        }}
+        onOpenSettings={() => {
+          closeAllOverlays();
+          setShowSettingsModal(true);
+        }}
+      />
+
+      {/* Global Modals for Normal Mode */}
       {selectedCoworkerProfile && (
         <CoworkerProfileModal
           coworker={selectedCoworkerProfile}
-          onClose={() => setSelectedCoworkerProfile(null)}
+          onClose={closeAllOverlays}
           onInvite={() => {
             setCoworkerToInvite(selectedCoworkerProfile);
             setSelectedCoworkerProfile(null);
@@ -181,7 +343,7 @@ const DrawerContent: React.FC = () => {
           coworker={coworkerToInvite}
           userName={state.user.name}
           userAvatarColor={state.user.avatarColor}
-          onClose={() => setCoworkerToInvite(null)}
+          onClose={closeAllOverlays}
           onSend={type => {
             createInvitation(coworkerToInvite.id, type);
             setCoworkerToInvite(null);
@@ -192,12 +354,19 @@ const DrawerContent: React.FC = () => {
       {showOwnProfile && (
         <CoworkerProfileModal
           isOwnProfile
-          onClose={() => setShowOwnProfile(false)}
+          onClose={closeAllOverlays}
         />
       )}
 
-      {showGlobalMedals && (
-        <MedalsShowcaseModal onClose={() => setShowGlobalMedals(false)} />
+      {/* Notifications overlay above everything in normal mode */}
+      {showNotifications && (
+        <NotificationsScreen
+          onClose={() => setShowNotifications(false)}
+          onOpenMedals={() => {
+            setShowNotifications(false);
+            setShowGlobalMedals(true);
+          }}
+        />
       )}
     </div>
   );

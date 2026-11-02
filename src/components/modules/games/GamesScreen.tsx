@@ -10,11 +10,13 @@ import type { Coworker } from '../../../types';
 interface GamesScreenProps {
   onOpenCoworkerProfile?: (coworker: Coworker) => void;
   onOpenOwnProfile?: () => void;
+  onStartGame?: () => void;
 }
 
 export const GamesScreen: React.FC<GamesScreenProps> = ({
   onOpenCoworkerProfile,
   onOpenOwnProfile,
+  onStartGame,
 }) => {
   const { state, setDrawerMode } = useApp();
   const { gameCycle, user, coworkers } = state;
@@ -41,7 +43,11 @@ export const GamesScreen: React.FC<GamesScreenProps> = ({
   };
 
   const handlePlayNow = () => {
-    setDrawerMode('expanded');
+    if (onStartGame) {
+      onStartGame();
+    } else {
+      setDrawerMode('expanded');
+    }
   };
 
   // Combine coworkers and user for leaderboard

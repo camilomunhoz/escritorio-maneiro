@@ -129,19 +129,30 @@ export const INITIAL_MEDALS: Medal[] = [
 export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {
     id: 'notif-1',
-    title: 'Novo ciclo de jogos liberado',
-    message: 'Um novo minijogo está disponível para todos os colaboradores. Aproveite uma pausa rápida.',
-    timestamp: Date.now() - 1000 * 60 * 25,
+    title: 'Novo jogo liberado!',
+    message: 'Cobrinha está disponível para uma pausa rápida.',
+    timestamp: Date.now() - 1000 * 60 * 15,
     read: false,
-    category: 'medal',
+    category: 'games',
+    goToTab: 'games',
   },
   {
     id: 'notif-2',
     title: 'Convite recebido',
     message: 'Mariana Costa convidou você para uma pausa do café.',
-    timestamp: Date.now() - 1000 * 60 * 90,
+    timestamp: Date.now() - 1000 * 60 * 45,
     read: false,
     category: 'social',
+    goToTab: 'social',
+  },
+  {
+    id: 'notif-3',
+    title: 'Lembrete de postura',
+    message: 'Reserve 2 minutos para um alongamento guiado.',
+    timestamp: Date.now() - 1000 * 60 * 120,
+    read: true,
+    category: 'health',
+    goToTab: 'health',
   },
 ];
 

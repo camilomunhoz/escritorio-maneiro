@@ -4,9 +4,13 @@ import { ArcadeAvatarIsometric } from './ArcadeAvatarIsometric';
 import { SnakeGame } from './SnakeGame';
 import { PongGame } from './PongGame';
 import { TermoGame } from './TermoGame';
-import { Minimize2 } from 'lucide-react';
+import { X } from 'lucide-react';
 
-export const GamePlayerExpanded: React.FC = () => {
+interface GamePlayerExpandedProps {
+  onExit?: () => void;
+}
+
+export const GamePlayerExpanded: React.FC<GamePlayerExpandedProps> = ({ onExit }) => {
   const { state, setDrawerMode, finishGameRound } = useApp();
   const { user, gameCycle } = state;
 
@@ -15,7 +19,11 @@ export const GamePlayerExpanded: React.FC = () => {
   };
 
   const handleExit = () => {
-    setDrawerMode('normal');
+    if (onExit) {
+      onExit();
+    } else {
+      setDrawerMode('normal');
+    }
   };
 
   const gameTitles: Record<string, string> = {
@@ -28,13 +36,13 @@ export const GamePlayerExpanded: React.FC = () => {
 
   return (
     <div className="w-full h-full flex overflow-hidden bg-white select-none relative">
-      {/* Botão de Fechar / Minimizar no topo direito */}
+      {/* Botao de Fechar no topo direito */}
       <button
         onClick={handleExit}
         className="absolute top-2 right-2 z-20 p-1.5 rounded-lg bg-calm-100/80 hover:bg-calm-200 text-calm-600 transition cursor-pointer"
-        title="Retornar ao Drawer Normal (350px)"
+        title="Retornar ao menu de jogos"
       >
-        <Minimize2 size={14} />
+        <X size={15} />
       </button>
 
       {/* Coluna Esquerda (1/3 ~ 240px): Avatar Isométrico no Fliperama */}

@@ -17,9 +17,10 @@ import {
 
 interface HealthScreenProps {
   onOpenStretchVision: () => void;
+  onOpenCalibration?: () => void;
 }
 
-export const HealthScreen: React.FC<HealthScreenProps> = ({ onOpenStretchVision }) => {
+export const HealthScreen: React.FC<HealthScreenProps> = ({ onOpenStretchVision, onOpenCalibration }) => {
   const { state, registerWater, setWaterUnit, calibrateHealth } = useApp();
   const { health } = state;
 
@@ -172,7 +173,13 @@ export const HealthScreen: React.FC<HealthScreenProps> = ({ onOpenStretchVision 
         <Button
           size="sm"
           variant="outline"
-          onClick={() => setShowPostureCalibration(true)}
+          onClick={() => {
+            if (onOpenCalibration) {
+              onOpenCalibration();
+            } else {
+              setShowPostureCalibration(true);
+            }
+          }}
           className="text-[11px] gap-1 px-2.5"
         >
           <Camera size={12} />
