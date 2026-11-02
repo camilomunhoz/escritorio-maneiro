@@ -4,7 +4,8 @@ export interface BackdropBlurOverlayProps {
   isOpen: boolean;
   onClick?: () => void;
   className?: string;
-  zIndex?: string;
+  zIndex?: string | number;
+  style?: React.CSSProperties;
   intensity?: 'subtle' | 'medium' | 'strong';
 }
 
@@ -17,6 +18,7 @@ export const BackdropBlurOverlay: React.FC<BackdropBlurOverlayProps> = ({
   onClick,
   className = '',
   zIndex = 'z-40',
+  style,
   intensity = 'subtle',
 }) => {
   if (!isOpen) return null;
@@ -27,11 +29,19 @@ export const BackdropBlurOverlay: React.FC<BackdropBlurOverlayProps> = ({
     strong: 'bg-calm-950/50 backdrop-blur-sm',
   }[intensity];
 
+  const zIndexClass = typeof zIndex === 'string' ? zIndex : '';
+  const inlineZIndex = typeof zIndex === 'number' ? zIndex : undefined;
+  const mergedStyle: React.CSSProperties = {
+    ...(inlineZIndex !== undefined ? { zIndex: inlineZIndex } : {}),
+    ...style,
+  };
+
   return (
     <div
       onClick={onClick}
       aria-hidden="true"
-      className={`absolute inset-0 ${zIndex} ${intensityClasses} transition-opacity duration-200 animate-fadeIn ${className}`}
+      style={mergedStyle}
+      className={`absolute inset-0 ${zIndexClass} ${intensityClasses} transition-opacity duration-200 animate-fadeIn ${className}`}
     />
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
+import { ModalZIndexProvider } from './context/ModalZIndexContext';
 import type { Coworker, NavigationTab } from './types';
 import { DesktopContainer } from './components/layout/DesktopContainer';
 import { DrawerHost } from './components/layout/DrawerHost';
@@ -103,87 +104,89 @@ const DrawerContent: React.FC = () => {
   }
 
   // 1. Expanded Mode View (750x500px)
-  // Structural definition: environments that need 750px always render full expanded view
+  // Structural definition: environments that need 750px render full expanded view
   if (isExpanded) {
-    let expandedBody: React.ReactNode = null;
+    let expandedBase: React.ReactNode = null;
 
     if (isPlayingGame) {
-      expandedBody = <GamePlayerExpanded onExit={() => setIsPlayingGame(false)} />;
-    } else if (showSharedGoal) {
-      expandedBody = (
-        <div className="w-full h-full relative overflow-hidden">
-          <SharedGoalExpandedModal
-            onClose={() => {
-              setShowSharedGoal(false);
-            }}
-            onOpenProfile={(coworker, isOwn) => {
-              if (isOwn) {
-                setShowOwnProfile(true);
-              } else if (coworker) {
-                setSelectedCoworkerProfile(coworker);
-              }
-            }}
-          />
-
-          {selectedCoworkerProfile && (
-            <CoworkerProfileModal
-              coworker={selectedCoworkerProfile}
-              onClose={() => setSelectedCoworkerProfile(null)}
-              onInvite={() => {
-                setCoworkerToInvite(selectedCoworkerProfile);
-                setSelectedCoworkerProfile(null);
-              }}
-            />
-          )}
-
-          {showOwnProfile && (
-            <CoworkerProfileModal
-              isOwnProfile
-              onClose={() => setShowOwnProfile(false)}
-            />
-          )}
-
-          {coworkerToInvite && (
-            <InvitationModal
-              coworker={coworkerToInvite}
-              userName={state.user.name}
-              userAvatarColor={state.user.avatarColor}
-              onClose={() => setCoworkerToInvite(null)}
-              onSend={type => {
-                createInvitation(coworkerToInvite.id, type);
-                setCoworkerToInvite(null);
-              }}
-            />
-          )}
-        </div>
-      );
+      expandedBase = <GamePlayerExpanded onExit={() => setIsPlayingGame(false)} />;
     } else if (showStretchVision) {
-      expandedBody = <GuidedStretchModal onClose={() => setShowStretchVision(false)} />;
-    } else if (showPostureCalibration) {
-      expandedBody = (
-        <PostureCalibrationModal
-          onClose={() => setShowPostureCalibration(false)}
-          onCalibrate={score => {
-            calibrateHealth(score);
-            setShowPostureCalibration(false);
+      expandedBase = <GuidedStretchModal onClose={() => setShowStretchVision(false)} />;
+    } else if (showSharedGoal) {
+      expandedBase = (
+        <SharedGoalExpandedModal
+          onClose={() => {
+            setShowSharedGoal(false);
+          }}
+          onOpenProfile={(coworker, isOwn) => {
+            if (isOwn) {
+              setShowOwnProfile(true);
+            } else if (coworker) {
+              setSelectedCoworkerProfile(coworker);
+            }
           }}
         />
       );
-    } else if (showFacialDetection) {
-      expandedBody = (
-        <FacialDetectionModal
-          onClose={() => setShowFacialDetection(false)}
-        />
-      );
-    } else if (showAvatarModal) {
-      expandedBody = <AvatarCustomizerModal onClose={() => setShowAvatarModal(false)} />;
-    } else if (showGlobalMedals) {
-      expandedBody = <MedalsShowcaseModal onClose={() => setShowGlobalMedals(false)} />;
     }
 
     return (
-      <div className="w-full h-full relative overflow-hidden">
-        {expandedBody}
+      <div className="w-full h-full relative overflow-hidden bg-white">
+        {expandedBase}
+
+        {/* Dynamic Modals in Expanded Mode: layered with dynamic z-index */}
+        {showPostureCalibration && (
+          <PostureCalibrationModal
+            onClose={() => setShowPostureCalibration(false)}
+            onCalibrate={score => {
+              calibrateHealth(score);
+              setShowPostureCalibration(false);
+            }}
+          />
+        )}
+
+        {showFacialDetection && (
+          <FacialDetectionModal
+            onClose={() => setShowFacialDetection(false)}
+          />
+        )}
+
+        {showAvatarModal && (
+          <AvatarCustomizerModal onClose={() => setShowAvatarModal(false)} />
+        )}
+
+        {showGlobalMedals && (
+          <MedalsShowcaseModal onClose={() => setShowGlobalMedals(false)} />
+        )}
+
+        {selectedCoworkerProfile && (
+          <CoworkerProfileModal
+            coworker={selectedCoworkerProfile}
+            onClose={() => setSelectedCoworkerProfile(null)}
+            onInvite={() => {
+              setCoworkerToInvite(selectedCoworkerProfile);
+            }}
+          />
+        )}
+
+        {showOwnProfile && (
+          <CoworkerProfileModal
+            isOwnProfile
+            onClose={() => setShowOwnProfile(false)}
+          />
+        )}
+
+        {coworkerToInvite && (
+          <InvitationModal
+            coworker={coworkerToInvite}
+            userName={state.user.name}
+            userAvatarColor={state.user.avatarColor}
+            onClose={() => setCoworkerToInvite(null)}
+            onSend={type => {
+              createInvitation(coworkerToInvite.id, type);
+              setCoworkerToInvite(null);
+            }}
+          />
+        )}
 
         {/* Notifications above everything in expanded mode */}
         {showNotifications && (
@@ -375,15 +378,17 @@ const DrawerContent: React.FC = () => {
 export const App: React.FC = () => {
   return (
     <AppProvider>
-      <DesktopContainer>
-        {/* Godmode panel for testers in the top right of the desktop */}
-        <DevControls />
+      <ModalZIndexProvider>
+        <DesktopContainer>
+          {/* Godmode panel for testers in the top right of the desktop */}
+          <DevControls />
 
-        {/* Anchored bottom-right drawer */}
-        <DrawerHost>
-          <DrawerContent />
-        </DrawerHost>
-      </DesktopContainer>
+          {/* Anchored bottom-right drawer */}
+          <DrawerHost>
+            <DrawerContent />
+          </DrawerHost>
+        </DesktopContainer>
+      </ModalZIndexProvider>
     </AppProvider>
   );
 };

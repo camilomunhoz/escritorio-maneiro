@@ -45,7 +45,10 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   return (
     <nav
       aria-label="Navegação Principal"
-      className="w-full h-[52px] border-t border-calm-200/90 bg-calm-50/95 backdrop-blur-sm px-2 flex items-center justify-around select-none shrink-0 relative z-30"
+      style={isMenuOpen ? { zIndex: 130 } : undefined}
+      className={`w-full h-[52px] border-t border-calm-200/90 bg-calm-50/95 backdrop-blur-sm px-2 flex items-center justify-around select-none shrink-0 relative ${
+        isMenuOpen ? '' : 'z-30'
+      }`}
     >
       {tabs.map(tab => {
         const Icon = tab.icon;

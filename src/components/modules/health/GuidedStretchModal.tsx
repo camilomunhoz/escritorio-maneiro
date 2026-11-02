@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useApp } from '../../../context/AppContext';
+import { Modal } from '../../ui/Modal';
 import { audioService } from '../../../services/audioService';
 import {
   BodyTrackingFilter,
@@ -41,6 +42,7 @@ import {
 export interface GuidedStretchModalProps {
   onClose: () => void;
   onComplete?: () => void;
+  zIndex?: number;
 }
 
 type SessionState = 'STOPPED' | 'FRAMING' | 'TPOSE' | 'LOCKED' | 'PLAYING';
@@ -61,7 +63,7 @@ const DEFAULT_EMA_ALPHA = 0.65;
 // Set to true to restore Demonstration Mode in the UI and automatic fallback
 const ENABLE_DEMO_MODE = false;
 
-export const GuidedStretchModal: React.FC<GuidedStretchModalProps> = ({ onClose, onComplete }) => {
+export const GuidedStretchModal: React.FC<GuidedStretchModalProps> = ({ onClose, onComplete, zIndex }) => {
   const { completeStretch } = useApp();
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -1205,7 +1207,12 @@ export const GuidedStretchModal: React.FC<GuidedStretchModalProps> = ({ onClose,
   const holdRatio = Math.max(0, Math.min(1.0, holdDuration / DEFAULT_HOLD_TIME));
 
   return (
-    <div className="w-full h-full flex flex-col bg-white select-none relative overflow-hidden">
+    <Modal
+      hideHeader
+      onClose={handleExitModal}
+      zIndex={zIndex}
+      contentClassName="w-full h-full flex flex-col min-h-0"
+    >
       {/* Hidden Video for Camera Capture */}
       <video ref={videoRef} playsInline autoPlay muted className="hidden" />
 
@@ -1600,7 +1607,7 @@ export const GuidedStretchModal: React.FC<GuidedStretchModalProps> = ({ onClose,
 
       {/* 4. Modal de Resumo da Sessão e Concessão de XP */}
       {showSessionSummary && (
-        <div className="absolute inset-0 z-40 bg-calm-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="absolute inset-0 z-20 bg-calm-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
           <Card
             variant="default"
             padding="md"
@@ -1670,7 +1677,7 @@ export const GuidedStretchModal: React.FC<GuidedStretchModalProps> = ({ onClose,
           </Card>
         </div>
       )}
-    </div>
+    </Modal>
   );
 };
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import { useApp } from '../../../context/AppContext';
+import { Modal } from '../../ui/Modal';
 import { AvatarSvg } from '../../ui/AvatarSvg';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
@@ -23,6 +24,7 @@ import {
 interface SharedGoalExpandedModalProps {
   onClose: () => void;
   onOpenProfile?: (coworker: Coworker | null, isOwn: boolean) => void;
+  zIndex?: number;
 }
 
 interface AppInfo {
@@ -62,6 +64,7 @@ const SUPPORTED_APPS: AppInfo[] = [
 export const SharedGoalExpandedModal: React.FC<SharedGoalExpandedModalProps> = ({
   onClose,
   onOpenProfile,
+  zIndex,
 }) => {
   const { state, connectApp, disconnectApp } = useApp();
   const { sharedGoal, user, coworkers } = state;
@@ -192,7 +195,12 @@ export const SharedGoalExpandedModal: React.FC<SharedGoalExpandedModalProps> = (
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-white select-none relative overflow-hidden animate-fadeIn">
+    <Modal
+      hideHeader
+      onClose={onClose}
+      zIndex={zIndex}
+      contentClassName="w-full h-full flex flex-col min-h-0"
+    >
       {/* 1. Header Superior Expandido */}
       <div className="px-4 py-2 border-b border-calm-200 flex items-center justify-between bg-calm-50/90 shrink-0">
         <div className="flex items-center gap-2.5">
@@ -500,7 +508,7 @@ export const SharedGoalExpandedModal: React.FC<SharedGoalExpandedModalProps> = (
           </div>
         </section>
       </div>
-    </div>
+    </Modal>
   );
 };
 

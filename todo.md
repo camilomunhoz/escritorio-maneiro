@@ -6,8 +6,10 @@
 6. [x] corrigir posicionamento dos meus interesses; permitir adição de mais customizados (pill input)
 7. [x] remover discriminação de XP de perfis publicos, mantendo somente no nosso.
 
-8. [ ] em social, trocar "Todos (n)" para "Conexões", que mostra somente quem já interagiu com vc (é o equivalente a uma aba "Amigos"), e também o nível da relação (XP compartilhado - necessita de novas estruturas no nosso banco). a antiga funcionalidade "todos" deve aparecer com um botão no topo da seção "Conexões" que diz "Nova conexão", o qual abre modal de input dinamico que começa com todos (da mesma forma que está atualmente) e filtra conforme digita.
-9. [ ] no convite para encontro, remover "cancelar", fixar no topo o resumo do convite com o botão de enviar. não haverá mais footer de ações nessa seção.
+8. [ ] em social, trocar "Todos (n)" para "Conexões", que mostra somente quem já interagiu com vc (é o equivalente a uma aba "Amigos"), e também o nível da relação (XP compartilhado - necessita de novas estruturas no nosso banco). a antiga funcionalidade "todos" deve aparecer com um botão no topo da seção "Conexões" que diz "Nova conexão", o qual abre modal de input dinamico que começa com todos (da mesma forma que está atualmente) e filtra conforme digita. observe que uma conexão só é registrada quando há um encontro é bem sucedido, então não é um botão de "Adicionar amigo" mas sim trigger para o flow de interação presencial.
+9. [ ] no convite para encontro, adotar nossa interface expandida com duas colunas, exibindo a seleção na esquerda e a ilustração da conexão na parte maior, à direita. remover o cargo da pessoa.
+9a. [ ] um encontro deve ter 3h até expiração após aceite (expira se não for validado por aproximação); convites pendentes podem ser cancelados pelo emissor e pelo receptor, de forma silenciosa que não emite notificação ou remove as já enviadas, com remoção do histórico e sem badge de cancelado para evitar constrangimentos.
+9b. [ ] deixe um convite recebido pendente logo de início para o tester interagir com um. é aqui que a interação demo de "Validar NFC"  deve estar, e não mais na tela de envio de convite. a moral aqui é que possamos passar por todos o fluxo end-to-end. garanta que a notificação agora vá direto para o convite enviado e não para o ambiente geral de social.
 
 10. [x] modais que são expanded não tem versão normal e devem sempre expandir (avatar, calibração, etc). não existem ambientes que são os dois (expanded ou normal). isso nao sao modos mutáveis e dinamicos, mas sim definição da estrutura do ambiente.
 

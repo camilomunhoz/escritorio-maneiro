@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { User, Palette, Award, Settings } from 'lucide-react';
 import { BackdropBlurOverlay } from '../../ui/BackdropBlurOverlay';
+import { useModalZIndex } from '../../../context/ModalZIndexContext';
 
 interface MenuPopupProps {
   isOpen: boolean;
@@ -20,6 +21,11 @@ export const MenuPopup: React.FC<MenuPopupProps> = ({
   onOpenSettings,
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
+  const { zIndex, backdropZIndex } = useModalZIndex({
+    id: 'footer-menu-popup',
+    isOpen,
+    priority: 'menu',
+  });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -76,13 +82,14 @@ export const MenuPopup: React.FC<MenuPopupProps> = ({
 
   return (
     <>
-      {/* Background Blur Overlay (SSOT) */}
-      <BackdropBlurOverlay isOpen={isOpen} onClick={onClose} zIndex="z-40" intensity="subtle" />
+      {/* Background Blur Overlay (SSOT) com z-index dinâmico */}
+      <BackdropBlurOverlay isOpen={isOpen} onClick={onClose} zIndex={backdropZIndex} intensity="subtle" />
 
-      {/* Compact Popover Menu anchored in bottom-right */}
+      {/* Compact Popover Menu anchored in bottom-right com z-index dinâmico */}
       <div
         ref={popupRef}
-        className="absolute bottom-14 right-2 z-50 w-44 bg-white/95 backdrop-blur-md rounded-xl border border-calm-200/90 shadow-xl p-1 animate-fadeIn select-none"
+        style={{ zIndex }}
+        className="absolute bottom-14 right-2 w-44 bg-white/95 backdrop-blur-md rounded-xl border border-calm-200/90 shadow-xl p-1 animate-fadeIn select-none"
         role="menu"
         aria-orientation="vertical"
       >
