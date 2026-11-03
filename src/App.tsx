@@ -182,6 +182,8 @@ const DrawerContent: React.FC = () => {
             coworker={coworkerToInvite}
             userName={state.user.name}
             userAvatarColor={state.user.avatarColor}
+            userAvatarBody={state.user.avatarBody}
+            userAvatarFace={state.user.avatarFace}
             onClose={() => setCoworkerToInvite(null)}
             onSend={type => {
               createInvitation(coworkerToInvite.id, type);
@@ -362,6 +364,8 @@ const DrawerContent: React.FC = () => {
           coworker={coworkerToInvite}
           userName={state.user.name}
           userAvatarColor={state.user.avatarColor}
+            userAvatarBody={state.user.avatarBody}
+            userAvatarFace={state.user.avatarFace}
           onClose={closeAllOverlays}
           onSend={type => {
             createInvitation(coworkerToInvite.id, type);

@@ -1,12 +1,21 @@
 import React from 'react';
-import { AvatarSvg } from '../../ui/AvatarSvg';
+import { UserAvatar } from '../../ui/UserAvatar';
 
 interface ArcadeAvatarIsometricProps {
-  avatarColor: string;
+  avatarColor?: string;
+  avatarBody?: string;
+  avatarFace?: string;
+  userId?: string;
   gameTitle: string;
 }
 
-export const ArcadeAvatarIsometric: React.FC<ArcadeAvatarIsometricProps> = ({ avatarColor, gameTitle }) => {
+export const ArcadeAvatarIsometric: React.FC<ArcadeAvatarIsometricProps> = ({
+  avatarColor,
+  avatarBody,
+  avatarFace,
+  userId,
+  gameTitle,
+}) => {
   return (
     <div className="w-full h-full flex flex-col items-center justify-between p-4 bg-gradient-to-b from-calm-100 to-calm-200/90 text-calm-800 select-none">
       {/* Informações Superiores */}
@@ -74,13 +83,17 @@ export const ArcadeAvatarIsometric: React.FC<ArcadeAvatarIsometricProps> = ({ av
           <line x1="100" y1="168" x2="100" y2="176" stroke="#94A3B8" strokeWidth="1.5" />
         </svg>
 
-        {/* Avatar Posicionado em frente ao Arcade com micro-animação de movimento */}
-        <div className="absolute bottom-6 right-7 transform transition-transform duration-300 animate-bounce" style={{ animationDuration: '2.4s' }}>
-          <div className="relative">
-            <AvatarSvg color={avatarColor} size="md" projected />
-            {/* Brilho da tela projetado no rosto do avatar */}
-            <div className="absolute -inset-1 rounded-full bg-cyan-400/20 blur-sm pointer-events-none" />
-          </div>
+        {/* Avatar Posicionado em frente ao Arcade com o novo padrao bare, followMouse e xl */}
+        <div className="absolute bottom-3 right-4 z-10 flex items-center justify-center">
+          <UserAvatar
+            userId={userId}
+            color={avatarColor}
+            bodyId={avatarBody}
+            faceId={avatarFace}
+            size="xl"
+            bare
+            followMouse
+          />
         </div>
       </div>
 

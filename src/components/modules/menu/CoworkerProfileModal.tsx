@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Coworker } from '../../../types';
 import { useApp } from '../../../context/AppContext';
 import { Modal } from '../../ui/Modal';
-import { AvatarSvg } from '../../ui/AvatarSvg';
+import { UserAvatar } from '../../ui/UserAvatar';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { Award, Flame, Tag, ShieldCheck, Plus, X } from 'lucide-react';
@@ -72,7 +72,7 @@ export const CoworkerProfileModal: React.FC<CoworkerProfileModalProps> = ({
       {/* Profile Identity Card & Scrollable Body */}
       <div className="p-4 flex-1 flex flex-col gap-3 max-w-lg mx-auto w-full min-h-0">
         <div className="flex items-center gap-3">
-          <AvatarSvg color={profile.avatarColor} size="lg" projected />
+          <UserAvatar userId={profile.id} user={profile} size="xl" followMouse projected />
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold text-calm-900 truncate">{profile.name}</h3>
             <p className="text-xs text-calm-500 truncate">{profile.department}</p>

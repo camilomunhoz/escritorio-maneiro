@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { Coworker } from '../../../types';
 import { Modal } from '../../ui/Modal';
-import { AvatarSvg } from '../../ui/AvatarSvg';
+import { UserAvatar } from '../../ui/UserAvatar';
 import { Button } from '../../ui/Button';
 import { Search, X, UserPlus, Send } from 'lucide-react';
 
@@ -84,7 +84,7 @@ export const NewConnectionModal: React.FC<NewConnectionModalProps> = ({
               >
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <AvatarSvg color={cw.avatarColor} size="sm" />
+                    <UserAvatar user={cw} size="sm" />
                     <div className="min-w-0">
                       <p className="text-xs font-semibold text-calm-900 truncate">{cw.name}</p>
                       <p className="text-[10px] text-calm-500 truncate">{cw.department}</p>

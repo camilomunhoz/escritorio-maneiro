@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderboardEntry, NotificationItem, UserConnection, InvitationType } from '../types';
 import { loadAppState, saveAppState, resetAppState } from '../services/storageService';
+import { INITIAL_COWORKERS } from '../services/mockDataService';
 import { getXpRewardForEncounter, calculateConnectionLevel } from '../utils/socialUtils';
 
 interface AppContextValue {
@@ -203,12 +204,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       termo: [100, 85, 75, 60],
     };
     const scores = mockScores[game] || [90, 75, 60, 40];
-    return [
-      { userId: 'cw-2', name: 'Bruno Oliveira', score: scores[0], department: 'Engenharia de Software', avatarColor: '#5A6B7C' },
-      { userId: 'cw-6', name: 'Gabriel Souza', score: scores[1], department: 'Engenharia de Software', avatarColor: '#9E5B4B' },
-      { userId: 'cw-8', name: 'Lucas Pereira', score: scores[2], department: 'Qualidade e Testes', avatarColor: '#78909C' },
-      { userId: 'cw-1', name: 'Mariana Costa', score: scores[3], department: 'Design de Produto', avatarColor: '#C87D6B' },
+    const targets = [
+      { id: 'cw-2', score: scores[0] },
+      { id: 'cw-6', score: scores[1] },
+      { id: 'cw-8', score: scores[2] },
+      { id: 'cw-1', score: scores[3] },
     ];
+    return targets.map(t => {
+      const cw = INITIAL_COWORKERS.find(c => c.id === t.id);
+      return {
+        userId: t.id,
+        name: cw ? cw.name : 'Colega',
+        score: t.score,
+        department: cw ? cw.department : 'Geral',
+        avatarColor: cw ? cw.avatarColor : '#5A6B7C',
+        avatarBody: cw?.avatarBody,
+        avatarFace: cw?.avatarFace,
+      };
+    });
   };
 
   // Godmode helpers
@@ -354,6 +367,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           score,
           department: prev.user.department,
           avatarColor: prev.user.avatarColor,
+          avatarBody: prev.user.avatarBody,
+          avatarFace: prev.user.avatarFace,
         },
       ].sort((a, b) => b.score - a.score);
 
@@ -573,6 +588,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         senderId: prev.user.id,
         senderName: prev.user.name,
         senderAvatarColor: prev.user.avatarColor,
+        senderAvatarBody: prev.user.avatarBody,
+        senderAvatarFace: prev.user.avatarFace,
         receiverId: coworker.id,
         receiverName: coworker.name,
         type,

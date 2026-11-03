@@ -7,6 +7,8 @@ export interface User {
   name: string;
   department: string;
   avatarColor: string;
+  avatarBody?: string;
+  avatarFace?: string;
   level: number;
   xp: number;
   xpGames: number;
@@ -25,6 +27,8 @@ export interface Coworker {
   name: string;
   department: string;
   avatarColor: string;
+  avatarBody?: string;
+  avatarFace?: string;
   level: number;
   xp: number;
   streak: number;
@@ -69,6 +73,8 @@ export interface RoundLeaderboardEntry {
   score: number;
   department: string;
   avatarColor: string;
+  avatarBody?: string;
+  avatarFace?: string;
 }
 
 export interface GameCycleState {
@@ -97,6 +103,8 @@ export interface SocialInvitation {
   senderId: string;
   senderName: string;
   senderAvatarColor: string;
+  senderAvatarBody?: string;
+  senderAvatarFace?: string;
   receiverId: string;
   receiverName: string;
   type: InvitationType;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../../context/AppContext';
-import { AvatarSvg } from '../../ui/AvatarSvg';
+import { UserAvatar } from '../../ui/UserAvatar';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { Card } from '../../ui/Card';
@@ -214,7 +214,7 @@ export const GamesScreen: React.FC<GamesScreenProps> = ({
                   <span className="w-4 text-center font-mono text-[11px] font-bold text-calm-500">
                     {index + 1}º
                   </span>
-                  <AvatarSvg color={entry.avatarColor} size="sm" />
+                  <UserAvatar userId={entry.userId} user={entry} size="sm" />
                   <div className="min-w-0">
                     <p className="text-xs truncate leading-tight">
                       {entry.name} {isUser && '(Você)'}

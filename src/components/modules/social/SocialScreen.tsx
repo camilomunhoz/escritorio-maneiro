@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../../context/AppContext';
 import type { Coworker, InvitationType } from '../../../types';
-import { AvatarSvg } from '../../ui/AvatarSvg';
+import { UserAvatar } from '../../ui/UserAvatar';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { ProgressBar } from '../../ui/ProgressBar';
@@ -224,7 +224,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = ({
                       onClick={() => onOpenCoworkerProfile(cw)}
                       className="flex items-center gap-2 cursor-pointer min-w-0"
                     >
-                      <AvatarSvg color={cw.avatarColor} size="sm" />
+                      <UserAvatar user={cw} size="sm" />
                       <div className="min-w-0">
                         <p className="text-xs font-semibold text-calm-900 truncate">{cw.name}</p>
                         <p className="text-[10px] text-calm-500 truncate">{cw.department}</p>
@@ -313,7 +313,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = ({
                           className="flex items-center gap-2.5 min-w-0 cursor-pointer group"
                           title="Ver perfil completo"
                         >
-                          <AvatarSvg color={cw.avatarColor} size="sm" />
+                          <UserAvatar user={cw} size="sm" />
                           <div className="min-w-0">
                             <p className="text-xs font-semibold text-calm-900 truncate group-hover:text-calm-700 transition">{cw.name}</p>
                             <p className="text-[10px] text-calm-500 truncate">{cw.department}</p>
@@ -382,6 +382,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = ({
                   {acceptedEncounters.map(inv => {
                     const isSender = inv.senderId === user.id;
                     const partnerName = isSender ? inv.receiverName : inv.senderName;
+                    const partnerId = isSender ? inv.receiverId : inv.senderId;
                     const isValidating = validatingEncounterId === inv.id;
 
                     return (
@@ -391,7 +392,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = ({
                       >
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2.5 min-w-0">
-                            <AvatarSvg color={inv.senderAvatarColor || '#6D8B75'} size="sm" />
+                            <UserAvatar userId={partnerId} size="sm" />
                             <div className="min-w-0">
                               <p className="text-xs font-semibold text-calm-900 truncate">
                                 Encontro com {partnerName}
@@ -461,7 +462,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = ({
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div className="relative">
-                          <AvatarSvg color={inv.senderAvatarColor || '#C87D6B'} size="sm" />
+                          <UserAvatar userId={inv.senderId} color={inv.senderAvatarColor} bodyId={inv.senderAvatarBody} faceId={inv.senderAvatarFace} size="sm" />
                           <span
                             className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"
                             title="Não atendido"
@@ -558,13 +559,14 @@ export const SocialScreen: React.FC<SocialScreenProps> = ({
                 {completedEncounters.length > 0 ? (
                   completedEncounters.map(inv => {
                     const partnerName = inv.senderId === user.id ? inv.receiverName : inv.senderName;
+                    const partnerId = inv.senderId === user.id ? inv.receiverId : inv.senderId;
                     return (
                       <div
                         key={inv.id}
                         className="p-2.5 rounded-xl border border-calm-200 bg-white flex items-center justify-between gap-2"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <AvatarSvg color={inv.senderAvatarColor || '#5A6B7C'} size="sm" />
+                          <UserAvatar userId={partnerId} size="sm" />
                           <div className="min-w-0">
                             <p className="text-xs font-medium text-calm-900 truncate">{partnerName}</p>
                             <p className="text-[10px] text-calm-500">
@@ -582,7 +584,7 @@ export const SocialScreen: React.FC<SocialScreenProps> = ({
                 ) : (
                   <div className="p-2.5 rounded-xl border border-calm-200 bg-white flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <AvatarSvg color="#5A6B7C" size="sm" />
+                      <UserAvatar userId="cw-2" size="sm" />
                       <div className="min-w-0">
                         <p className="text-xs font-medium text-calm-900 truncate">Bruno Oliveira</p>
                         <p className="text-[10px] text-calm-500">Almoço Compartilhado • Ontem</p>

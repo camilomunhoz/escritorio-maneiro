@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import type { Coworker } from '../../../types';
 import { Modal } from '../../ui/Modal';
-import { AvatarSvg } from '../../ui/AvatarSvg';
+import { UserAvatar } from '../../ui/UserAvatar';
 import { Button } from '../../ui/Button';
-import { Coffee, Utensils, Sun, MessageSquare, Send, CheckCircle2, Sparkles } from 'lucide-react';
+import { Coffee, Utensils, Sun, MessageSquare, Send, CheckCircle2 } from 'lucide-react';
 
 interface InvitationModalProps {
   coworker: Coworker;
   userAvatarColor: string;
+  userAvatarBody?: string;
+  userAvatarFace?: string;
   userName: string;
   onClose: () => void;
   onSend: (type: 'cafe' | 'almoco' | 'sol' | 'conversa') => void;
@@ -17,6 +19,8 @@ interface InvitationModalProps {
 export const InvitationModal: React.FC<InvitationModalProps> = ({
   coworker,
   userAvatarColor,
+  userAvatarBody,
+  userAvatarFace,
   userName,
   onClose,
   onSend,
@@ -92,25 +96,22 @@ export const InvitationModal: React.FC<InvitationModalProps> = ({
                 <button
                   key={act.id}
                   onClick={() => setSelectedType(act.id)}
-                  className={`p-2.5 rounded-xl border text-left transition flex items-start gap-2.5 cursor-pointer ${
-                    isSelected
-                      ? 'bg-sage-50 border-sage-500 ring-1 ring-sage-500 shadow-xs'
-                      : 'bg-white hover:bg-calm-50 border-calm-200/90'
-                  }`}
+                  className={`p-2.5 rounded-xl border text-left transition flex items-start gap-2.5 cursor-pointer ${isSelected
+                    ? 'bg-sage-50 border-sage-500 ring-1 ring-sage-500 shadow-xs'
+                    : 'bg-white hover:bg-calm-50 border-calm-200/90'
+                    }`}
                 >
                   <div
-                    className={`p-2 rounded-lg shrink-0 ${
-                      isSelected ? 'bg-sage-600 text-white' : 'bg-calm-100 text-calm-600'
-                    }`}
+                    className={`p-2 rounded-lg shrink-0 ${isSelected ? 'bg-sage-600 text-white' : 'bg-calm-100 text-calm-600'
+                      }`}
                   >
                     <Icon size={16} />
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
                       <span
-                        className={`text-xs font-semibold leading-tight ${
-                          isSelected ? 'text-sage-900' : 'text-calm-800'
-                        }`}
+                        className={`text-xs font-semibold leading-tight ${isSelected ? 'text-sage-900' : 'text-calm-800'
+                          }`}
                       >
                         {act.title}
                       </span>
@@ -145,18 +146,12 @@ export const InvitationModal: React.FC<InvitationModalProps> = ({
         <div className="absolute w-96 h-96 rounded-full bg-sage-50/40 -z-0 pointer-events-none blur-2xl" />
 
         <div className="relative z-10 flex flex-col items-center max-w-md text-center">
-          {/* Header pill */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sage-50 border border-sage-200 text-sage-800 text-[11px] font-medium mb-6">
-            <Sparkles size={12} className="text-sage-600" />
-            <span>Momento de Descompressão no Escritório</span>
-          </div>
-
           {/* Dual Avatar Graphic */}
           <div className="flex items-center justify-center gap-6 sm:gap-8 my-2">
             {/* User Profile */}
             <div className="flex flex-col items-center">
-              <div className="p-2 rounded-2xl bg-white shadow-soft border border-calm-200">
-                <AvatarSvg color={userAvatarColor} size="lg" projected />
+              <div className="p-2">
+                <UserAvatar color={userAvatarColor} bodyId={userAvatarBody} faceId={userAvatarFace} size="xl" projected followMouse />
               </div>
               <span className="text-xs font-semibold text-calm-900 mt-2">
                 {userName.split(' ')[0]}
@@ -178,8 +173,15 @@ export const InvitationModal: React.FC<InvitationModalProps> = ({
 
             {/* Coworker Profile (Sem cargo para priorizar conexão pessoal) */}
             <div className="flex flex-col items-center">
-              <div className="p-2 rounded-2xl bg-white shadow-soft border border-calm-200">
-                <AvatarSvg color={coworker.avatarColor} size="lg" projected />
+              <div className="p-2">
+                <UserAvatar
+                  color={coworker.avatarColor}
+                  bodyId={coworker.avatarBody}
+                  faceId={coworker.avatarFace}
+                  size="xl"
+                  projected
+                  followMouse
+                />
               </div>
               <span className="text-xs font-semibold text-calm-900 mt-2">
                 {coworker.name}

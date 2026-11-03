@@ -29,6 +29,28 @@ export function loadAppState(): AppState {
     } else if (typeof parsed.health.waterTarget !== 'number' || parsed.health.waterTarget === 2000 || parsed.health.waterTarget <= 0) {
       parsed.health.waterTarget = 1200;
     }
+    if (!parsed.user.avatarBody) parsed.user.avatarBody = initial.user.avatarBody || 'body-15';
+    if (!parsed.user.avatarFace) parsed.user.avatarFace = initial.user.avatarFace || 'face-1';
+    if (Array.isArray(parsed.coworkers)) {
+      parsed.coworkers.forEach((cw, idx) => {
+        if (!cw.avatarBody) cw.avatarBody = initial.coworkers[idx]?.avatarBody || 'body-15';
+        if (!cw.avatarFace) cw.avatarFace = initial.coworkers[idx]?.avatarFace || 'face-1';
+      });
+    }
+    if (parsed.gameCycle && Array.isArray(parsed.gameCycle.roundLeaderboard)) {
+      parsed.gameCycle.roundLeaderboard.forEach(entry => {
+        if (entry.userId === parsed.user.id) {
+          if (!entry.avatarBody) entry.avatarBody = parsed.user.avatarBody;
+          if (!entry.avatarFace) entry.avatarFace = parsed.user.avatarFace;
+        } else {
+          const matchCw = parsed.coworkers?.find(c => c.id === entry.userId) || initial.coworkers?.find(c => c.id === entry.userId);
+          if (matchCw) {
+            if (!entry.avatarBody) entry.avatarBody = matchCw.avatarBody;
+            if (!entry.avatarFace) entry.avatarFace = matchCw.avatarFace;
+          }
+        }
+      });
+    }
     return parsed;
   } catch (error) {
     console.warn('Falha ao ler o estado local. Restaurando padrão.', error);

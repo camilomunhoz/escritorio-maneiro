@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import { useApp } from '../../../context/AppContext';
 import { Modal } from '../../ui/Modal';
-import { AvatarSvg } from '../../ui/AvatarSvg';
+import { UserAvatar } from '../../ui/UserAvatar';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { ProgressBar } from '../../ui/ProgressBar';
@@ -472,7 +472,7 @@ export const SharedGoalExpandedModal: React.FC<SharedGoalExpandedModalProps> = (
                       {position}
                     </span>
 
-                    <AvatarSvg color={collab.avatarColor} size="sm" />
+                    <UserAvatar userId={collab.id} user={collab} size="sm" />
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">

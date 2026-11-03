@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../../context/AppContext';
-import { AvatarSvg } from '../../ui/AvatarSvg';
+import { UserAvatar } from '../../ui/UserAvatar';
 import { Badge } from '../../ui/Badge';
 import { ProgressBar } from '../../ui/ProgressBar';
 import { Flame, Globe, Award, CheckCircle2, Circle, ChevronRight, ShieldAlert } from 'lucide-react';
@@ -32,7 +32,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         title="Clique para visualizar seu perfil completo"
       >
         <div className="flex items-center gap-3">
-          <AvatarSvg color={user.avatarColor} size="lg" projected />
+          <UserAvatar userId={user.id} size="xl" followMouse projected />
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1 min-w-0">

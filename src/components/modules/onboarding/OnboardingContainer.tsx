@@ -4,17 +4,10 @@ import { AvatarSvg } from '../../ui/AvatarSvg';
 import { Button } from '../../ui/Button';
 import { Loader } from '../../ui/Loader';
 import { ArrowLeft, ArrowRight, ShieldCheck, Camera, Check, Sparkles } from 'lucide-react';
+import { AvatarCustomizerContent, AVATAR_COLOR_PALETTE } from '../avatar/AvatarCustomizerContent';
+import { DEFAULT_BODY_ID, DEFAULT_FACE_ID } from '../../../data/avatarRegistry';
 
-export const COLOR_PALETTE = [
-  { name: 'Sálvia', hex: '#6D8B75' },
-  { name: 'Ardósia', hex: '#5A6B7C' },
-  { name: 'Terracota', hex: '#C87D6B' },
-  { name: 'Areia', hex: '#CCA97D' },
-  { name: 'Argila', hex: '#8D6E63' },
-  { name: 'Oliva', hex: '#556F5C' },
-  { name: 'Aço', hex: '#455A64' },
-  { name: 'Carmesim Suave', hex: '#9E5B4B' },
-];
+export const COLOR_PALETTE = AVATAR_COLOR_PALETTE;
 
 export const OnboardingContainer: React.FC = () => {
   const { state, setDrawerMode, updateUser, completeOnboarding } = useApp();
@@ -30,6 +23,8 @@ export const OnboardingContainer: React.FC = () => {
 
   // Selected avatar color during step
   const [tempColor, setTempColor] = useState(state.user.avatarColor || '#6D8B75');
+  const [tempBody, setTempBody] = useState(state.user.avatarBody || DEFAULT_BODY_ID);
+  const [tempFace, setTempFace] = useState(state.user.avatarFace || DEFAULT_FACE_ID);
 
   // Camera state
   const [cameraActive, setCameraActive] = useState(false);
@@ -306,59 +301,29 @@ export const OnboardingContainer: React.FC = () => {
     );
   }
 
-  // STAGE 6: Step 1 - Avatar Customization (1/3 Left, 2/3 Right)
+  // STAGE 6: Step 1 - Choose Avatar (1/3 Left, 2/3 Right)
   if (stage === 'custom_avatar') {
     return (
-      <div className="w-full h-full flex overflow-hidden bg-white select-none">
-        {/* Left Column (1/3 ~ 250px) */}
-        <aside className="w-64 border-r border-calm-200/80 bg-calm-50/70 p-5 flex flex-col justify-between">
-          <div className="flex flex-col gap-3">
-            <span className="text-[10px] font-semibold text-sage-700 tracking-wider uppercase">Passo 1 de 2</span>
-            <h3 className="font-semibold text-calm-900 text-sm">Personalização do Avatar</h3>
-            <p className="text-xs text-calm-500 leading-relaxed">
-              Escolha a tonalidade suave que melhor representa seu perfil no escritório:
-            </p>
-
-            {/* Color Swatches Grid */}
-            <div className="grid grid-cols-4 gap-2.5 mt-2">
-              {COLOR_PALETTE.map(c => (
-                <button
-                  key={c.hex}
-                  onClick={() => setTempColor(c.hex)}
-                  className={`w-9 h-9 rounded-full transition-transform active:scale-95 cursor-pointer flex items-center justify-center ${tempColor === c.hex ? 'ring-2 ring-offset-2 ring-calm-800 scale-105' : 'hover:scale-105'
-                    }`}
-                  style={{ backgroundColor: c.hex }}
-                  title={c.name}
-                >
-                  {tempColor === c.hex && <Check size={14} className="text-white" />}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <Button
-            variant="primary"
-            size="md"
-            fullWidth
-            onClick={() => setStage('face_detect')}
-          >
-            Pronto
-          </Button>
-        </aside>
-
-        {/* Right Column (2/3 ~ 500px) */}
-        <section className="flex-1 flex flex-col items-center justify-center p-6 bg-white text-center">
-          <div className="flex flex-col items-center gap-3">
-            <AvatarSvg color={tempColor} size="hero" projected />
-            <h4 className="font-semibold text-calm-800 text-sm mt-2">{state.user.name}</h4>
-            <p className="text-xs text-calm-500">Silhueta vetorial do colaborador (sem cosméticos pagos)</p>
-          </div>
-        </section>
-      </div>
+      <AvatarCustomizerContent
+        initialColor={tempColor}
+        initialBodyId={tempBody}
+        initialFaceId={tempFace}
+        stepBadge="Passo 1 de 2"
+        title="Personalize seu Avatar"
+        description="Escolha a silhueta, expressão e tonalidade do seu perfil:"
+        confirmLabel="Pronto"
+        showCancelButton={false}
+        onConfirm={config => {
+          setTempColor(config.color);
+          setTempBody(config.bodyId);
+          setTempFace(config.faceId);
+          setStage('face_detect');
+        }}
+      />
     );
   }
 
-  // STAGE 7: Step 2 - Facial Detection / Biometry (1/3 Left, 2/3 Right)
+  // STAGE 7: Step 2 - Facial Detection - Facial Detection / Biometry (1/3 Left, 2/3 Right)
   if (stage === 'face_detect') {
     return (
       <div className="w-full h-full flex overflow-hidden bg-white select-none">

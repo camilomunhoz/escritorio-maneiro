@@ -47,7 +47,13 @@ export const GamePlayerExpanded: React.FC<GamePlayerExpandedProps> = ({ onExit }
 
       {/* Coluna Esquerda (1/3 ~ 240px): Avatar Isométrico no Fliperama */}
       <aside className="w-60 border-r border-calm-200/90 bg-calm-50/70 flex flex-col shrink-0">
-        <ArcadeAvatarIsometric avatarColor={user.avatarColor} gameTitle={currentTitle} />
+        <ArcadeAvatarIsometric
+          userId={user.id}
+          avatarColor={user.avatarColor}
+          avatarBody={user.avatarBody}
+          avatarFace={user.avatarFace}
+          gameTitle={currentTitle}
+        />
       </aside>
 
       {/* Coluna Direita (2/3 ~ 510px): Minijogo Ativo */}
