@@ -8,7 +8,7 @@ export interface DrawerHostProps {
 }
 
 export const DrawerHost: React.FC<DrawerHostProps> = ({ children }) => {
-  const { state, setDrawerOpen, showNotifications, setShowNotifications } = useApp();
+  const { state, setDrawerOpen, showNotifications, setShowNotifications, xpBadge } = useApp();
 
   const unreadNotificationsCount = state.notifications.filter(n => !n.read).length;
   const isNotificationsActive = showNotifications;
@@ -38,9 +38,21 @@ export const DrawerHost: React.FC<DrawerHostProps> = ({ children }) => {
       >
         {/* Compact Window Header */}
         <div className="flex items-center justify-between px-3 py-1 h-7 bg-calm-50/90 border-b border-calm-200/70 select-none text-[11px] text-calm-600 shrink-0">
-          {/* Left: App Title */}
-          <div className="flex items-center gap-1.5">
-            <span className="font-semibold font-primary text-calm-800 tracking-tight text-xs">Nimbo</span>
+          {/* Left: App Title and XP Gain Badge */}
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="font-semibold font-primary text-calm-800 tracking-tight text-xs shrink-0">Nimbo</span>
+            {xpBadge && (
+              <span
+                key={xpBadge.id}
+                className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold tracking-tight text-white shadow-xs select-none shrink-0 ${
+                  xpBadge.type === 'levelup' ? 'bg-terracottaMuted-600' : 'bg-emerald-600'
+                } ${
+                  xpBadge.stage === 'exit' ? 'animate-xp-out' : 'animate-xp-in'
+                }`}
+              >
+                {xpBadge.text}
+              </span>
+            )}
           </div>
 
           {/* Right: Window Actions - Bell Notifications & Chevron Down Minimize */}

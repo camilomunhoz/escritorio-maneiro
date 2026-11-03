@@ -20,7 +20,7 @@
 
 15. [ ] melhorar display de conquistas, deve ser layout expanded
 16. [ ] criar mais medalhas e conquistas
-16a. [ ] animação de +XP na topbar toda vez que recebe algo. notificação ao cumprir uma meta diária
+16a. [x] animação de +XP na topbar toda vez que recebe algo. notificação ao cumprir uma meta diária
 
 17. [x] remova o calculo baseado em copos, mantenha somente os 200ml+.
 

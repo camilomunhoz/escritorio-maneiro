@@ -147,6 +147,16 @@ export interface NotificationItem {
   goToSubTab?: 'recommendations' | 'connections' | 'invitations';
 }
 
+export type TopbarBadgeType = 'xp' | 'levelup';
+
+export interface XpGainBadge {
+  id: number;
+  type: TopbarBadgeType;
+  text: string;
+  amount?: number;
+  stage: 'enter' | 'exit';
+}
+
 export interface AppState {
   user: User;
   onboardingCompleted: boolean;

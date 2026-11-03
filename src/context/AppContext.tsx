@@ -1,11 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderboardEntry, NotificationItem, UserConnection, InvitationType } from '../types';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderboardEntry, NotificationItem, UserConnection, InvitationType, XpGainBadge } from '../types';
 import { loadAppState, saveAppState, resetAppState } from '../services/storageService';
 import { INITIAL_COWORKERS } from '../services/mockDataService';
 import { getXpRewardForEncounter, calculateConnectionLevel } from '../utils/socialUtils';
 
 interface AppContextValue {
   state: AppState;
+  xpBadge: XpGainBadge | null;
   setDrawerOpen: (open: boolean) => void;
   toggleDrawer: () => void;
   setDrawerMode: (mode: DrawerMode) => void;
@@ -59,6 +60,92 @@ const AppContext = createContext<AppContextValue | undefined>(undefined);
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, setState] = useState<AppState>(() => loadAppState());
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
+  const [xpBadge, setXpBadge] = useState<XpGainBadge | null>(null);
+
+  const allBadgeTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const xpEventSeq = useRef<number>(0);
+  const userRef = useRef<User>(state.user);
+  userRef.current = state.user;
+
+  const clearAllBadgeTimeouts = useCallback(() => {
+    allBadgeTimeoutsRef.current.forEach(t => clearTimeout(t));
+    allBadgeTimeoutsRef.current = [];
+  }, []);
+
+  const addBadgeTimeout = useCallback((fn: () => void, delayMs: number) => {
+    const t = setTimeout(fn, delayMs);
+    allBadgeTimeoutsRef.current.push(t);
+    return t;
+  }, []);
+
+  // Clear timers on component unmount to prevent leaks
+  useEffect(() => {
+    return () => {
+      clearAllBadgeTimeouts();
+    };
+  }, [clearAllBadgeTimeouts]);
+
+  const triggerXpAnimation = useCallback((amount: number, didLevelUp = false) => {
+    if (amount <= 0) return;
+
+    // Cancel existing timers immediately to prevent conflicts, stacking, or premature hiding
+    clearAllBadgeTimeouts();
+
+    const currentEventId = ++xpEventSeq.current;
+
+    // Immediately trigger entering animation
+    setXpBadge({
+      id: currentEventId,
+      type: 'xp',
+      text: `+${amount} XP`,
+      amount,
+      stage: 'enter',
+    });
+
+    // Schedule reverse transition after 3 seconds
+    addBadgeTimeout(() => {
+      setXpBadge(prev => {
+        if (!prev || prev.id !== currentEventId) return prev;
+        return { ...prev, stage: 'exit' };
+      });
+
+      // Cleanup and execute next sequence after reverse transition completes (300ms)
+      addBadgeTimeout(() => {
+        if (didLevelUp) {
+          const levelUpEventId = ++xpEventSeq.current;
+
+          // Trigger Level up! badge using signature terracotta orange
+          setXpBadge({
+            id: levelUpEventId,
+            type: 'levelup',
+            text: 'Level up!',
+            stage: 'enter',
+          });
+
+          // Schedule reverse transition for Level up! badge after 3 seconds
+          addBadgeTimeout(() => {
+            setXpBadge(prev => {
+              if (!prev || prev.id !== levelUpEventId) return prev;
+              return { ...prev, stage: 'exit' };
+            });
+
+            // Cleanup after Level up! reverse transition completes (300ms)
+            addBadgeTimeout(() => {
+              setXpBadge(prev => {
+                if (!prev || prev.id !== levelUpEventId) return prev;
+                return null;
+              });
+            }, 300);
+          }, 3000);
+        } else {
+          setXpBadge(prev => {
+            if (!prev || prev.id !== currentEventId) return prev;
+            return null;
+          });
+        }
+      }, 300);
+    }, 1500);
+  }, [clearAllBadgeTimeouts, addBadgeTimeout]);
 
   const [isGodmodeOpen, setGodmodeOpen] = useState<boolean>(false);
   const toggleGodmode = useCallback(() => {
@@ -94,10 +181,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const addXP = useCallback((amount: number, pillar: 'games' | 'health' | 'social' = 'games') => {
+    if (amount <= 0) return;
+
+    const prevLevel = userRef.current.level;
+    const currentXp = userRef.current.xp;
+    const newXP = currentXp + amount;
+    const newLevel = Math.floor(newXP / 100) + 1;
+    const didLevelUp = newLevel > prevLevel;
+
+    // Immediately keep userRef synchronized
+    userRef.current = {
+      ...userRef.current,
+      xp: newXP,
+      level: newLevel,
+    };
+
+    // Trigger visual notification badge pipeline (XP and optionally Level up!)
+    triggerXpAnimation(amount, didLevelUp);
+
     setState(prev => {
-      const newXP = prev.user.xp + amount;
-      const newLevel = Math.floor(newXP / 100) + 1;
-      
       const xpGames = pillar === 'games' ? prev.user.xpGames + amount : prev.user.xpGames;
       const xpHealth = pillar === 'health' ? prev.user.xpHealth + amount : prev.user.xpHealth;
       const xpSocial = pillar === 'social' ? prev.user.xpSocial + amount : prev.user.xpSocial;
@@ -114,38 +216,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         },
       };
     });
-  }, []);
+  }, [triggerXpAnimation]);
 
   const completeDailyGoal = useCallback((goalId: string) => {
+    let rewardAmount = 0;
+    let rewardPillar: 'games' | 'health' | 'social' = 'games';
+
     setState(prev => {
       const goal = prev.dailyGoals.find(g => g.id === goalId);
       if (!goal || goal.completed) return prev;
+
+      rewardAmount = goal.xpReward;
+      rewardPillar = goal.pillar;
 
       const updatedGoals = prev.dailyGoals.map(g =>
         g.id === goalId ? { ...g, completed: true, progress: g.target } : g
       );
 
-      // Reward XP based on pillar
-      const newXP = prev.user.xp + goal.xpReward;
-      const newLevel = Math.floor(newXP / 100) + 1;
-      const xpGames = goal.pillar === 'games' ? prev.user.xpGames + goal.xpReward : prev.user.xpGames;
-      const xpHealth = goal.pillar === 'health' ? prev.user.xpHealth + goal.xpReward : prev.user.xpHealth;
-      const xpSocial = goal.pillar === 'social' ? prev.user.xpSocial + goal.xpReward : prev.user.xpSocial;
+      const completionNotif: NotificationItem = {
+        id: `notif-goal-${Date.now()}-${goal.id}`,
+        title: 'Meta diária concluída',
+        message: `Você concluiu "${goal.title}" e recebeu +${goal.xpReward} XP.`,
+        timestamp: Date.now(),
+        read: false,
+        category: goal.pillar,
+        goToTab: 'home',
+      };
 
       return {
         ...prev,
         dailyGoals: updatedGoals,
-        user: {
-          ...prev.user,
-          xp: newXP,
-          level: newLevel,
-          xpGames,
-          xpHealth,
-          xpSocial,
-        },
+        notifications: [completionNotif, ...prev.notifications],
       };
     });
-  }, []);
+
+    if (rewardAmount > 0) {
+      addXP(rewardAmount, rewardPillar);
+    }
+  }, [addXP]);
 
   const toggleVacationMode = useCallback(() => {
     setState(prev => ({
@@ -356,9 +464,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Game Cycle Operations
   const finishGameRound = useCallback((score: number) => {
+    const xpEarned = Math.min(100, Math.max(20, Math.floor(score / 2)));
+
     setState(prev => {
-      const xpEarned = Math.min(100, Math.max(20, Math.floor(score / 2)));
-      
       const newRoundLeaderboard = [
         ...prev.gameCycle.roundLeaderboard.filter(e => e.userId !== prev.user.id),
         {
@@ -377,10 +485,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         g.pillar === 'games' ? { ...g, completed: true, progress: g.target } : g
       );
 
-      const newXP = prev.user.xp + xpEarned;
-      const newLevel = Math.floor(newXP / 100) + 1;
-      const xpGames = prev.user.xpGames + xpEarned;
-
       return {
         ...prev,
         dailyGoals: updatedGoals,
@@ -390,15 +494,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           lastScore: score,
           roundLeaderboard: newRoundLeaderboard,
         },
-        user: {
-          ...prev.user,
-          xp: newXP,
-          level: newLevel,
-          xpGames,
-        },
       };
     });
-  }, []);
+
+    addXP(xpEarned, 'games');
+  }, [addXP]);
 
   const advanceGameCycle = useCallback(() => {
     setState(prev => {
@@ -436,6 +536,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Health Operations
   const registerWater = useCallback((amount = 200): { success: boolean; message: string } => {
     let result = { success: true, message: 'Registro de água efetuado com sucesso.' };
+    let xpToAdd = 0;
+
     setState(prev => {
       const now = Date.now();
       const thirtyMinutesMs = 30 * 60 * 1000;
@@ -448,9 +550,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       const isTargetReached = newCount >= prev.health.waterTarget;
 
       let updatedGoals = prev.dailyGoals;
-      let newXP = prev.user.xp + 2;
-      let xpHealth = prev.user.xpHealth + 2;
-      let newLevel = Math.floor(newXP / 100) + 1;
+      let earnedXp = 2;
 
       if (isValidForGoal) {
         updatedGoals = prev.dailyGoals.map(g => {
@@ -458,9 +558,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             const nextProgress = Math.min(g.target, g.progress + 1);
             const isCompleted = nextProgress >= g.target || isTargetReached;
             if (isCompleted) {
-              newXP += g.xpReward;
-              xpHealth += g.xpReward;
-              newLevel = Math.floor(newXP / 100) + 1;
+              earnedXp += g.xpReward;
             }
             return {
               ...g,
@@ -471,6 +569,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           return g;
         });
       }
+
+      xpToAdd = earnedXp;
 
       if (!isValidForGoal) {
         result = {
@@ -487,16 +587,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           waterCount: newCount,
           lastWaterTimestamp: now,
         },
-        user: {
-          ...prev.user,
-          xp: newXP,
-          xpHealth,
-          level: newLevel,
-        },
       };
     });
+
+    if (xpToAdd > 0) {
+      addXP(xpToAdd, 'health');
+    }
+
     return result;
-  }, []);
+  }, [addXP]);
 
   const setWaterTarget = useCallback((target: number) => {
     setState(prev => ({
@@ -525,12 +624,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const completeStretch = useCallback((repsCompleted = 1, sessionScore = 25) => {
     if (repsCompleted <= 0) return;
+    const xpEarned = Math.min(100, Math.max(15, Math.round(sessionScore * 0.6)));
+    const postureGain = Math.min(15, repsCompleted * 5);
+
     setState(prev => {
-      const xpEarned = Math.min(100, Math.max(15, Math.round(sessionScore * 0.6)));
       const newStretches = prev.health.stretchesCompleted + repsCompleted;
-      const newXP = prev.user.xp + xpEarned;
-      const newLevel = Math.floor(newXP / 100) + 1;
-      const postureGain = Math.min(15, repsCompleted * 5);
       return {
         ...prev,
         health: {
@@ -539,15 +637,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           stretchesCompleted: newStretches,
           postureScore: Math.min(98, prev.health.postureScore + postureGain),
         },
-        user: {
-          ...prev.user,
-          xp: newXP,
-          xpHealth: prev.user.xpHealth + xpEarned,
-          level: newLevel,
-        },
       };
     });
-  }, []);
+
+    addXP(xpEarned, 'health');
+  }, [addXP]);
 
   // Social Operations
   const sendFriendRequest = useCallback((coworkerId: string) => {
@@ -579,6 +673,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const createInvitation = useCallback((coworkerId: string, type: InvitationType) => {
+    let socialReward = 0;
+
     setState(prev => {
       const coworker = prev.coworkers.find(c => c.id === coworkerId);
       if (!coworker) return prev;
@@ -598,9 +694,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       };
 
       // Mark daily social goal as completed (sending an invite satisfies the daily goal)
-      const updatedGoals = prev.dailyGoals.map(g =>
-        g.pillar === 'social' ? { ...g, completed: true, progress: g.target } : g
-      );
+      const updatedGoals = prev.dailyGoals.map(g => {
+        if (g.pillar === 'social' && !g.completed) {
+          socialReward = g.xpReward;
+          return { ...g, completed: true, progress: g.target };
+        }
+        return g;
+      });
 
       return {
         ...prev,
@@ -608,7 +708,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         dailyGoals: updatedGoals,
       };
     });
-  }, []);
+
+    if (socialReward > 0) {
+      addXP(socialReward, 'social');
+    }
+  }, [addXP]);
 
   const acceptInvitation = useCallback((invitationId: string) => {
     setState(prev => {
@@ -646,6 +750,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const validateEncounterProximity = useCallback((invitationId: string) => {
     let result = { success: false, xpEarned: 0, newRelationLevel: 1 };
+    const individualXpGain = 40;
+    let shouldAwardXp = false;
+
     setState(prev => {
       const targetInv = prev.invitations.find(i => i.id === invitationId);
       if (!targetInv || targetInv.status !== 'accepted') return prev;
@@ -665,6 +772,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         xpEarned,
         newRelationLevel: levelInfo.level,
       };
+      shouldAwardXp = true;
 
       const updatedConn: UserConnection = {
         id: existingConn?.id || `conn-${partnerId}`,
@@ -691,11 +799,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           : cw
       );
 
-      // Jogador ganha XP individual pelo encontro
-      const individualXpGain = 40;
-      const newXP = prev.user.xp + individualXpGain;
-      const newLevel = Math.floor(newXP / 100) + 1;
-
       const completionNotification: NotificationItem = {
         id: `notif-enc-${Date.now()}`,
         title: 'Encontro validado com sucesso',
@@ -712,16 +815,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         connections: [updatedConn, ...otherConnections],
         coworkers: updatedCoworkers,
         notifications: [completionNotification, ...prev.notifications],
-        user: {
-          ...prev.user,
-          xp: newXP,
-          xpSocial: prev.user.xpSocial + individualXpGain,
-          level: newLevel,
-        },
       };
     });
+
+    if (shouldAwardXp) {
+      addXP(individualXpGain, 'social');
+    }
+
     return result;
-  }, []);
+  }, [addXP]);
 
   const updateUserInterests = useCallback((interests: string[]) => {
     setState(prev => ({
@@ -746,6 +848,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const value: AppContextValue = {
     state,
+    xpBadge,
     setDrawerOpen,
     toggleDrawer,
     setDrawerMode,
