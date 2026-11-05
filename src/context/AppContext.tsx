@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderboardEntry, NotificationItem, UserConnection, InvitationType, XpGainBadge } from '../types';
 import { loadAppState, saveAppState, resetAppState } from '../services/storageService';
-import { INITIAL_COWORKERS } from '../services/mockDataService';
+import { INITIAL_COWORKERS, createInitialAppState, getRandomDailyGoals } from '../services/mockDataService';
 import { getXpRewardForEncounter, calculateConnectionLevel } from '../utils/socialUtils';
 
 interface AppContextValue {
@@ -20,6 +20,7 @@ interface AppContextValue {
   completeOnboarding: () => void;
   reopenOnboarding: () => void;
   resetAllData: () => void;
+  toggleUserExperienceMode: () => void;
   // Godmode helpers
   isGodmodeOpen: boolean;
   setGodmodeOpen: (open: boolean) => void;
@@ -28,6 +29,7 @@ interface AppContextValue {
   godmodeSimulateWater: () => void;
   godmodeSimulatePostureAlert: () => void;
   godmodeResetDailyGoals: () => void;
+  godmodeNewDailyGoals: () => void;
   // Shared Goal Operations
   connectApp: (appId: string) => void;
   disconnectApp: (appId: string) => void;
@@ -296,6 +298,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setState(fresh);
   }, []);
 
+  const toggleUserExperienceMode = useCallback(() => {
+    setState(prev => {
+      const willBeExperienced = !prev.isExperienced;
+      if (willBeExperienced) {
+        const expState = createInitialAppState(true);
+        userRef.current = expState.user;
+        return {
+          ...expState,
+          drawerOpen: true,
+          drawerMode: 'normal',
+          currentTab: 'home',
+        };
+      } else {
+        const freshState = createInitialAppState(false);
+        userRef.current = freshState.user;
+        return {
+          ...freshState,
+          drawerOpen: true,
+          drawerMode: 'normal',
+          onboardingCompleted: false,
+          onboardingStep: 1,
+          currentTab: 'home',
+        };
+      }
+    });
+  }, []);
+
   // Game Rotation Helpers
   const GAME_ROTATION_SEQUENCE: GameType[] = ['cobrinha', 'pong', 'termo'];
 
@@ -390,48 +419,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }));
   }, []);
 
-  const godmodeResetDailyGoals = useCallback(() => {
-    setState(prev => {
-      let xpToDeduct = 0;
-      let xpGamesDeduct = 0;
-      let xpHealthDeduct = 0;
-      let xpSocialDeduct = 0;
-
-      prev.dailyGoals.forEach(g => {
-        if (g.completed) {
-          xpToDeduct += g.xpReward;
-          if (g.pillar === 'games') xpGamesDeduct += g.xpReward;
-          else if (g.pillar === 'health') xpHealthDeduct += g.xpReward;
-          else if (g.pillar === 'social') xpSocialDeduct += g.xpReward;
-        }
-      });
-
-      const newXP = Math.max(0, prev.user.xp - xpToDeduct);
-      const newLevel = Math.max(1, Math.floor(newXP / 100) + 1);
-      const newXpGames = Math.max(0, prev.user.xpGames - xpGamesDeduct);
-      const newXpHealth = Math.max(0, prev.user.xpHealth - xpHealthDeduct);
-      const newXpSocial = Math.max(0, prev.user.xpSocial - xpSocialDeduct);
-
-      const resetGoals = prev.dailyGoals.map(g => ({
-        ...g,
-        completed: false,
-        progress: 0,
-      }));
-
-      return {
-        ...prev,
-        dailyGoals: resetGoals,
-        user: {
-          ...prev.user,
-          xp: newXP,
-          level: newLevel,
-          xpGames: newXpGames,
-          xpHealth: newXpHealth,
-          xpSocial: newXpSocial,
-        },
-      };
-    });
+  const godmodeNewDailyGoals = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      dailyGoals: getRandomDailyGoals(),
+    }));
   }, []);
+
+  const godmodeResetDailyGoals = godmodeNewDailyGoals;
 
   // Shared Goal Operations
   const connectApp = useCallback((appId: string) => {
@@ -862,6 +857,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     completeOnboarding,
     reopenOnboarding,
     resetAllData,
+    toggleUserExperienceMode,
     isGodmodeOpen,
     setGodmodeOpen,
     toggleGodmode,
@@ -869,6 +865,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     godmodeSimulateWater,
     godmodeSimulatePostureAlert,
     godmodeResetDailyGoals,
+    godmodeNewDailyGoals,
     connectApp,
     disconnectApp,
     finishGameRound,

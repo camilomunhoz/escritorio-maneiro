@@ -1,13 +1,13 @@
 import type { AppState } from '../types';
 import { createInitialAppState } from './mockDataService';
 
-const STORAGE_KEY = 'escritorio_divertido_app_state_v1';
+const STORAGE_KEY = 'escritorio_divertido_app_state_v2';
 
 export function loadAppState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) {
-      const initial = createInitialAppState();
+      const initial = createInitialAppState(false);
       saveAppState(initial);
       return initial;
     }
@@ -16,13 +16,19 @@ export function loadAppState(): AppState {
     if (!parsed.user || !parsed.coworkers) {
       throw new Error('Estado corrompido ou incompleto.');
     }
-    const initial = createInitialAppState();
+    const initial = createInitialAppState(false);
+    if (parsed.isExperienced === undefined) {
+      parsed.isExperienced = parsed.user.xp > 0;
+    }
     // Guarantee required fields from current schema updates
     if (!parsed.connections || !Array.isArray(parsed.connections)) {
       parsed.connections = initial.connections;
     }
-    if (!parsed.invitations || !Array.isArray(parsed.invitations) || parsed.invitations.length === 0) {
+    if (!parsed.invitations || !Array.isArray(parsed.invitations)) {
       parsed.invitations = initial.invitations;
+    }
+    if (!parsed.dailyGoals || !Array.isArray(parsed.dailyGoals) || parsed.dailyGoals.length === 0) {
+      parsed.dailyGoals = initial.dailyGoals;
     }
     if (!parsed.health) {
       parsed.health = initial.health;

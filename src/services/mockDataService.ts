@@ -1,6 +1,6 @@
 import type { User, Coworker, DailyGoal, SharedGoal, Medal, NotificationItem, GameCycleState, HealthState, AppState, SocialInvitation, UserConnection } from '../types';
 
-export const INITIAL_USER: User = {
+export const INITIAL_EXPERIENCED_USER: User = {
   id: 'usr-main-tester',
   name: 'Alexandre Silva',
   department: 'Engenharia de Software',
@@ -19,6 +19,190 @@ export const INITIAL_USER: User = {
   interests: ['Tecnologia', 'Café', 'Jogos de Tabuleiro', 'Caminhada'],
   selectedMedalIds: ['med-primeiro-passo', 'med-hidratado'],
 };
+
+export const INITIAL_NEW_USER: User = {
+  id: 'usr-main-tester',
+  name: 'Alexandre Silva',
+  department: 'Engenharia de Software',
+  avatarColor: '#6D8B75',
+  avatarBody: 'body-15',
+  avatarFace: 'face-1',
+  level: 1,
+  xp: 0,
+  xpGames: 0,
+  xpHealth: 0,
+  xpSocial: 0,
+  streak: 0,
+  vacationMode: false,
+  facialLockEnabled: false,
+  facialDetectionCompleted: false,
+  interests: ['Tecnologia', 'Café', 'Jogos de Tabuleiro', 'Caminhada'],
+  selectedMedalIds: [],
+};
+
+export const INITIAL_USER: User = INITIAL_NEW_USER;
+
+export const DAILY_GOALS_BANK: Record<'games' | 'health' | 'social', Omit<DailyGoal, 'progress' | 'completed'>[]> = {
+  games: [
+    {
+      id: 'goal-jogos-1',
+      pillar: 'games',
+      title: 'Sessão de Minijogo',
+      description: 'Participe de 1 rodada do minijogo disponível no ciclo corporativo.',
+      xpReward: 40,
+      target: 1,
+      unit: 'partida',
+    },
+    {
+      id: 'goal-jogos-2',
+      pillar: 'games',
+      title: 'Desafio de Pontuação',
+      description: 'Supere a pontuação mínima de 25 pontos em qualquer minijogo.',
+      xpReward: 45,
+      target: 1,
+      unit: 'partida',
+    },
+    {
+      id: 'goal-jogos-3',
+      pillar: 'games',
+      title: 'Pausa Cognitiva Ativa',
+      description: 'Complete uma rodada rápida para oxigenar o cérebro no expediente.',
+      xpReward: 40,
+      target: 1,
+      unit: 'partida',
+    },
+    {
+      id: 'goal-jogos-4',
+      pillar: 'games',
+      title: 'Mestre do Arcade',
+      description: 'Registre seu placar na rodada competitiva amigável do escritório.',
+      xpReward: 50,
+      target: 1,
+      unit: 'partida',
+    },
+    {
+      id: 'goal-jogos-5',
+      pillar: 'games',
+      title: 'Foco e Reflexos',
+      description: 'Exercite sua coordenação motora participando do ciclo de jogos.',
+      xpReward: 40,
+      target: 1,
+      unit: 'partida',
+    },
+  ],
+  health: [
+    {
+      id: 'goal-saude-1',
+      pillar: 'health',
+      title: 'Hidratação Constante',
+      description: 'Beba água 4 vezes com intervalo de pelo menos 30 minutos.',
+      xpReward: 50,
+      target: 4,
+      unit: 'vezes',
+    },
+    {
+      id: 'goal-saude-2',
+      pillar: 'health',
+      title: 'Alongamento Guiado',
+      description: 'Complete uma sessão de alongamento postural na aba de saúde.',
+      xpReward: 45,
+      target: 1,
+      unit: 'sessão',
+    },
+    {
+      id: 'goal-saude-3',
+      pillar: 'health',
+      title: 'Calibração Postural',
+      description: 'Realize a calibração de postura para alinhar coluna e ombros.',
+      xpReward: 40,
+      target: 1,
+      unit: 'calibração',
+    },
+    {
+      id: 'goal-saude-4',
+      pillar: 'health',
+      title: 'Meta de Hidratação',
+      description: 'Atinja pelo menos 1.200 ml de água registrados ao longo do dia.',
+      xpReward: 50,
+      target: 1,
+      unit: 'meta',
+    },
+    {
+      id: 'goal-saude-5',
+      pillar: 'health',
+      title: 'Pausa Ergonômica',
+      description: 'Descanse a visão e relaxe os ombros durante uma micropausa consciente.',
+      xpReward: 35,
+      target: 1,
+      unit: 'pausa',
+    },
+  ],
+  social: [
+    {
+      id: 'goal-social-1',
+      pillar: 'social',
+      title: 'Conexão Presencial',
+      description: 'Envie um convite para tomar café ou almoçar com um colega.',
+      xpReward: 60,
+      target: 1,
+      unit: 'convite',
+    },
+    {
+      id: 'goal-social-2',
+      pillar: 'social',
+      title: 'Hora do Cafezinho',
+      description: 'Envie um convite de pausa do café para trocar ideias no escritório.',
+      xpReward: 45,
+      target: 1,
+      unit: 'convite',
+    },
+    {
+      id: 'goal-social-3',
+      pillar: 'social',
+      title: 'Almoço Compartilhado',
+      description: 'Proponha uma pausa de almoço presencial com alguém da sua equipe.',
+      xpReward: 55,
+      target: 1,
+      unit: 'convite',
+    },
+    {
+      id: 'goal-social-4',
+      pillar: 'social',
+      title: 'Pausa ao Ar Livre',
+      description: 'Convide um colega para tomar sol ou fazer uma caminhada rápida.',
+      xpReward: 50,
+      target: 1,
+      unit: 'convite',
+    },
+    {
+      id: 'goal-social-5',
+      pillar: 'social',
+      title: 'Interação Entre Áreas',
+      description: 'Envie um convite de conversa para um colega de outro departamento.',
+      xpReward: 50,
+      target: 1,
+      unit: 'convite',
+    },
+  ],
+};
+
+export function getRandomDailyGoals(): DailyGoal[] {
+  const pick = (list: typeof DAILY_GOALS_BANK['games']) => {
+    const item = list[Math.floor(Math.random() * list.length)];
+    return {
+      ...item,
+      id: `${item.id}-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`,
+      progress: 0,
+      completed: false,
+    };
+  };
+
+  return [
+    pick(DAILY_GOALS_BANK.games),
+    pick(DAILY_GOALS_BANK.health),
+    pick(DAILY_GOALS_BANK.social),
+  ];
+}
 
 export const INITIAL_DAILY_GOALS: DailyGoal[] = [
   {
@@ -444,22 +628,61 @@ export const INITIAL_CONNECTIONS: UserConnection[] = [
   },
 ];
 
-export function createInitialAppState(): AppState {
+export function createInitialAppState(asExperienced = false): AppState {
+  if (asExperienced) {
+    return {
+      isExperienced: true,
+      user: { ...INITIAL_EXPERIENCED_USER },
+      onboardingCompleted: true,
+      onboardingStep: 1,
+      drawerOpen: true,
+      drawerMode: 'normal',
+      currentTab: 'home',
+      coworkers: INITIAL_COWORKERS.map(c => ({ ...c })),
+      dailyGoals: INITIAL_DAILY_GOALS.map(g => ({ ...g })),
+      sharedGoal: { ...INITIAL_SHARED_GOAL },
+      gameCycle: { ...INITIAL_GAME_CYCLE },
+      health: { ...INITIAL_HEALTH_STATE },
+      invitations: INITIAL_INVITATIONS.map(i => ({ ...i })),
+      connections: INITIAL_CONNECTIONS.map(c => ({ ...c })),
+      medals: INITIAL_MEDALS.map(m => ({ ...m })),
+      notifications: INITIAL_NOTIFICATIONS.map(n => ({ ...n })),
+    };
+  }
+
   return {
-    user: INITIAL_USER,
+    isExperienced: false,
+    user: { ...INITIAL_NEW_USER },
     onboardingCompleted: false,
     onboardingStep: 1,
-    drawerOpen: false,
+    drawerOpen: true,
     drawerMode: 'normal',
     currentTab: 'home',
-    coworkers: INITIAL_COWORKERS,
-    dailyGoals: INITIAL_DAILY_GOALS,
-    sharedGoal: INITIAL_SHARED_GOAL,
-    gameCycle: INITIAL_GAME_CYCLE,
-    health: INITIAL_HEALTH_STATE,
-    invitations: INITIAL_INVITATIONS,
-    connections: INITIAL_CONNECTIONS,
-    medals: INITIAL_MEDALS,
-    notifications: INITIAL_NOTIFICATIONS,
+    coworkers: INITIAL_COWORKERS.map(c => ({ ...c })),
+    dailyGoals: getRandomDailyGoals(),
+    sharedGoal: { ...INITIAL_SHARED_GOAL },
+    gameCycle: {
+      ...INITIAL_GAME_CYCLE,
+      playedInCurrentCycle: false,
+      lastScore: 0,
+    },
+    health: {
+      calibrated: false,
+      waterUnit: 'ml',
+      waterCount: 0,
+      waterTarget: 1200,
+      lastWaterTimestamp: 0,
+      postureScore: 85,
+      pausesCount: 0,
+      stretchesCompleted: 0,
+    },
+    invitations: [],
+    connections: [],
+    medals: INITIAL_MEDALS.map(m => ({
+      ...m,
+      unlocked: false,
+      progress: 0,
+    })),
+    notifications: [],
   };
 }

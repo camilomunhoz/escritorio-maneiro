@@ -158,6 +158,7 @@ export interface XpGainBadge {
 }
 
 export interface AppState {
+  isExperienced?: boolean;
   user: User;
   onboardingCompleted: boolean;
   onboardingStep: number;
