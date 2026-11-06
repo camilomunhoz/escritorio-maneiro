@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../../context/AppContext';
 import { UserAvatar } from '../../ui/UserAvatar';
 import { Card } from '../../ui/Card';
-import { Play, Clock, Trophy, Gamepad2 } from 'lucide-react';
+import { Play, Trophy, Gamepad2 } from 'lucide-react';
 import { Podium } from './Podium';
 import { Button } from '../../ui/Button';
+import { CountdownClock } from '../../ui/CountdownClock';
 import { GameThumbnail } from './GameThumbnail';
 import type { Coworker } from '../../../types';
 
@@ -39,12 +40,6 @@ export const GamesScreen: React.FC<GamesScreenProps> = ({
 
   const isUnlocked = now >= gameCycle.nextReleaseTimestamp;
   const canPlay = isUnlocked && !gameCycle.playedInCurrentCycle;
-  const msRemaining = Math.max(0, gameCycle.nextReleaseTimestamp - now);
-
-  const hours = Math.floor(msRemaining / (1000 * 60 * 60));
-  const minutes = Math.floor((msRemaining % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((msRemaining % (1000 * 60)) / 1000);
-  const formattedCountdown = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
   const gameTitles: Record<string, string> = {
     cobrinha: 'Jogo da Cobrinha',
@@ -111,10 +106,10 @@ export const GamesScreen: React.FC<GamesScreenProps> = ({
                 <h3 className="text-sm font-semibold text-calm-900">Novo jogo será liberado em:</h3>
               </div>
 
-              <div className="flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-lg border border-calm-200 shadow-xs font-mono text-xs font-bold text-calm-700 mt-1">
-                <Clock size={14} className="text-sand-600" />
-                <span>{formattedCountdown}</span>
-              </div>
+              <CountdownClock
+                targetTimestamp={gameCycle.nextReleaseTimestamp}
+                className="mt-1 px-3 py-1.5"
+              />
             </div>
           )}
 

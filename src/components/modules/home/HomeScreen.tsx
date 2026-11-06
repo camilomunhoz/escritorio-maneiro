@@ -3,7 +3,8 @@ import { useApp } from '../../../context/AppContext';
 import { UserAvatar } from '../../ui/UserAvatar';
 import { Badge } from '../../ui/Badge';
 import { ProgressBar } from '../../ui/ProgressBar';
-import { Flame, Globe, Award, CheckCircle2, Circle, ChevronRight, ShieldAlert } from 'lucide-react';
+import { SharedGoalGlobe3D } from './SharedGoalGlobe3D';
+import { Flame, Award, CheckCircle2, Circle, ChevronRight, ShieldAlert } from 'lucide-react';
 
 interface HomeScreenProps {
   onOpenMedals: () => void;
@@ -160,27 +161,31 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       {/* 3. Meta Compartilhada Corporativa: Volta ao Mundo em 30 Dias (Abre Detalhes ao Clicar) */}
       <section
         onClick={onOpenSharedGoal}
-        className="bg-sand-50/80 hover:bg-sand-50 border border-sand-200/90 hover:border-sand-300 rounded-xl p-3.5 flex flex-col gap-2.5 cursor-pointer shadow-soft hover:shadow-md transition-all group"
+        className="relative overflow-hidden bg-sand-50/80 hover:bg-sand-50 border border-sand-200/90 hover:border-sand-300 rounded-xl p-4 flex flex-col justify-between gap-3 min-h-[128px] shrink-0 cursor-pointer shadow-soft hover:shadow-md transition-all group"
         title="Clique para ver o ranking e conectar aplicativos"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-sand-200/70 text-sand-800 flex items-center justify-center shrink-0">
-              <Globe size={16} />
-            </div>
-            <div className="min-w-0">
-              <h4 className="text-xs font-semibold text-sand-900 leading-tight truncate group-hover:text-sand-950 transition">
-                {sharedGoal.title}
-              </h4>
-              <p className="text-[10px] text-sand-700 truncate">{sharedGoal.description}</p>
-            </div>
-          </div>
-          <ChevronRight size={14} className="text-sand-500 group-hover:text-sand-800 transition shrink-0" />
+        {/* Elemento gráfico 3D: Globo dando overshoot no canto superior direito */}
+        <div className="absolute -top-12 -right-12 w-44 h-44 pointer-events-none select-none z-0">
+          <SharedGoalGlobe3D
+            currentKm={sharedGoal.currentKm}
+            targetKm={sharedGoal.targetKm}
+            percentage={(sharedGoal.currentKm / sharedGoal.targetKm) * 100}
+            interactive={false}
+          />
         </div>
 
-        <div className="space-y-1">
+        <div className="flex items-center justify-between relative z-10">
+          <div className="min-w-0 pr-14 text-left">
+            <h4 className="text-xs font-semibold text-sand-900 leading-tight truncate group-hover:text-sand-950 transition">
+              {sharedGoal.title}
+            </h4>
+            <p className="text-[10px] text-sand-700 truncate mt-0.5">{sharedGoal.description}</p>
+          </div>
+        </div>
+
+        <div className="space-y-1.5 relative z-10 w-[60%]">
           <div className="flex justify-between text-[10px] text-sand-800 font-medium">
-            <span>Progresso da Empresa</span>
+            <span>Progresso</span>
             <span>{sharedGoal.currentKm.toLocaleString('pt-BR')} / {sharedGoal.targetKm.toLocaleString('pt-BR')} km</span>
           </div>
           <ProgressBar
@@ -188,10 +193,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             max={sharedGoal.targetKm}
             color="sand"
             height="sm"
+            className="w-full"
           />
         </div>
 
-        <div className="flex items-center justify-between text-[10px] text-sand-700 pt-1 border-t border-sand-200/60">
+        <div className="flex items-center justify-between text-[10px] text-sand-700 pt-1.5 border-t border-sand-200/60 relative z-10">
           <span>{sharedGoal.deadlineDays} dias restantes</span>
           <span className="italic">Ver ranking e apps conectados</span>
         </div>

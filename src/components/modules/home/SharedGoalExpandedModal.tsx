@@ -6,6 +6,8 @@ import { UserAvatar } from '../../ui/UserAvatar';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { ProgressBar } from '../../ui/ProgressBar';
+import { CountdownClock } from '../../ui/CountdownClock';
+import { SharedGoalGlobe3D } from './SharedGoalGlobe3D';
 import type { Coworker } from '../../../types';
 import {
   ArrowLeft,
@@ -18,7 +20,6 @@ import {
   MapPin,
   Check,
   Minimize2,
-  ChevronRight,
 } from 'lucide-react';
 
 interface SharedGoalExpandedModalProps {
@@ -229,7 +230,7 @@ export const SharedGoalExpandedModal: React.FC<SharedGoalExpandedModalProps> = (
         </div>
 
         <div className="flex items-center gap-2">
-          <Badge variant="sand" size="sm">{sharedGoal.deadlineDays} dias restantes</Badge>
+          <CountdownClock daysRemaining={sharedGoal.deadlineDays} />
           <Badge variant="sage" size="sm">{sharedGoal.targetKm.toLocaleString('pt-BR')} km alvo</Badge>
           <button
             onClick={onClose}
@@ -264,6 +265,15 @@ export const SharedGoalExpandedModal: React.FC<SharedGoalExpandedModalProps> = (
                   <span className="text-base font-bold text-sand-800">{percentage.toFixed(1)}%</span>
                   <p className="text-[9px] text-calm-400">Completado</p>
                 </div>
+              </div>
+
+              {/* Globo 3D Toon Interativo com Anel de Progresso */}
+              <div className="relative w-full h-[155px] rounded-xl overflow-hidden bg-gradient-to-b from-calm-50/80 via-surface-card to-sand-50/40 border border-calm-200 shadow-soft flex items-center justify-center select-none">
+                <SharedGoalGlobe3D
+                  currentKm={sharedGoal.currentKm}
+                  targetKm={sharedGoal.targetKm}
+                  percentage={percentage}
+                />
               </div>
 
               <ProgressBar
@@ -500,7 +510,6 @@ export const SharedGoalExpandedModal: React.FC<SharedGoalExpandedModalProps> = (
                         {collab.steps.toLocaleString('pt-BR')} passos
                       </span>
                     </div>
-                    <ChevronRight size={13} className="text-calm-300 group-hover:text-calm-600 transition" />
                   </div>
                 </div>
               );

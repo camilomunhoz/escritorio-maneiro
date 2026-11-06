@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { User, Palette, Award, Settings } from 'lucide-react';
+import { User, Palette, Award, Settings, Globe } from 'lucide-react';
 import { BackdropBlurOverlay } from '../../ui/BackdropBlurOverlay';
 import { useModalZIndex } from '../../../context/ModalZIndexContext';
 
@@ -9,6 +9,7 @@ interface MenuPopupProps {
   onOpenProfile: () => void;
   onOpenAvatar: () => void;
   onOpenMedals: () => void;
+  onOpenSharedGoal: () => void;
   onOpenSettings: () => void;
 }
 
@@ -18,6 +19,7 @@ export const MenuPopup: React.FC<MenuPopupProps> = ({
   onOpenProfile,
   onOpenAvatar,
   onOpenMedals,
+  onOpenSharedGoal,
   onOpenSettings,
 }) => {
   const popupRef = useRef<HTMLDivElement>(null);
@@ -78,6 +80,12 @@ export const MenuPopup: React.FC<MenuPopupProps> = ({
       label: 'Conquistas',
       icon: Award,
       action: onOpenMedals,
+    },
+    {
+      id: 'shared-goal',
+      label: 'Volta ao mundo',
+      icon: Globe,
+      action: onOpenSharedGoal,
     },
     {
       id: 'settings',

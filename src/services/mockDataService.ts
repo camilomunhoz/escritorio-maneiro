@@ -242,7 +242,7 @@ export const INITIAL_DAILY_GOALS: DailyGoal[] = [
 
 export const INITIAL_SHARED_GOAL: SharedGoal = {
   title: 'Volta ao Mundo em 30 Dias',
-  description: 'Soma coletiva de passos e caminhadas sincronizadas de todo o escritório.',
+  description: 'Soma coletiva de passos e caminhadas.',
   currentKm: 14850,
   targetKm: 40075,
   deadlineDays: 14,

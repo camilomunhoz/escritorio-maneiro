@@ -355,7 +355,7 @@ const DrawerContent: React.FC = () => {
         onTabSelect={handleSelectTab}
       />
 
-      {/* Menu Popup (Meu Perfil, Meu Avatar, Conquistas, Configurações) */}
+      {/* Menu Popup (Meu Perfil, Meu Avatar, Conquistas, Volta ao mundo, Configurações) */}
       <MenuPopup
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
@@ -370,6 +370,10 @@ const DrawerContent: React.FC = () => {
         onOpenMedals={() => {
           closeAllOverlays();
           setShowGlobalMedals(true);
+        }}
+        onOpenSharedGoal={() => {
+          closeAllOverlays();
+          setShowSharedGoal(true);
         }}
         onOpenSettings={() => {
           closeAllOverlays();

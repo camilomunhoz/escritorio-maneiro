@@ -155,14 +155,11 @@ export const DesktopContainer: React.FC<DesktopContainerProps> = ({ children }) 
             }`}
             title="Abrir Painel de Ajustes e Testes"
           >
-            <span className="absolute -top-1 -right-1 px-1 py-0.2 bg-sage-600 text-white text-[8px] font-bold rounded uppercase tracking-wider shadow-xs">
-              DEV
-            </span>
             <div className="w-10 h-10 rounded-lg bg-sage-900/60 border border-sage-500/50 flex items-center justify-center text-sage-300 group-hover:text-white shadow-inner">
               <Sliders size={20} className="animate-pulse" />
             </div>
             <span className="text-[11px] text-sage-300 group-hover:text-white font-semibold leading-tight">
-              Painel Dev
+              Trapaças
             </span>
           </button>
         </div>
@@ -195,7 +192,7 @@ export const DesktopContainer: React.FC<DesktopContainerProps> = ({ children }) 
             title="Abrir / Fechar Plataforma de Bem-Estar"
           >
             <div className="w-5 h-5 rounded-full bg-sage-600 flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
-              ED
+              N
             </div>
 
             {/* Notification Badge */}
