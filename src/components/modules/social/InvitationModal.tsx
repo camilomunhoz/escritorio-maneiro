@@ -151,7 +151,7 @@ export const InvitationModal: React.FC<InvitationModalProps> = ({
             {/* User Profile */}
             <div className="flex flex-col items-center">
               <div className="p-2">
-                <UserAvatar color={userAvatarColor} bodyId={userAvatarBody} faceId={userAvatarFace} size="xl" projected followMouse />
+                <UserAvatar color={userAvatarColor} bodyId={userAvatarBody} faceId={userAvatarFace} size="xxl" projected followMouse />
               </div>
               <span className="text-xs font-semibold text-calm-900 mt-2">
                 {userName.split(' ')[0]}
@@ -166,9 +166,6 @@ export const InvitationModal: React.FC<InvitationModalProps> = ({
                   <ActiveIcon size={24} />
                 </div>
               </div>
-              <span className="text-[10px] font-medium text-sage-700 mt-5 bg-white px-2 py-0.5 rounded-full border border-calm-200 shadow-2xs">
-                {activeActivity.title}
-              </span>
             </div>
 
             {/* Coworker Profile (Sem cargo para priorizar conexão pessoal) */}
@@ -178,7 +175,7 @@ export const InvitationModal: React.FC<InvitationModalProps> = ({
                   color={coworker.avatarColor}
                   bodyId={coworker.avatarBody}
                   faceId={coworker.avatarFace}
-                  size="xl"
+                  size="xxl"
                   projected
                   followMouse
                 />

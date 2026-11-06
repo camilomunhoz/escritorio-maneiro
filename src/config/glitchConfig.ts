@@ -37,12 +37,12 @@ export const GLITCH_CONFIG = {
   sliceCount: 20,
 
   // Deslocamento horizontal maximo das fatias (em porcentagem)
-  sliceMaxShiftPercent: 5,
+  sliceMaxShiftPercent: 0,
 
   // Cores de interferencia do glitch
   colors: {
-    cyan: 'rgba(0, 240, 255, 0.01)',
-    magenta: 'rgba(255, 0, 90, 0.01)',
+    cyan: 'rgba(85, 85, 85, 0.01)',
+    magenta: 'rgba(119, 119, 119, 0.01)',
     flash: 'rgba(255, 255, 255, 0.1)',
   },
 };

@@ -154,11 +154,20 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
   const [score, setScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
 
+  const snakeRef = useRef<Point[]>(snake);
+  snakeRef.current = snake;
+
+  const foodRef = useRef<Point>(food);
+  foodRef.current = food;
+
   const directionRef = useRef<Direction>(direction);
   directionRef.current = direction;
 
   const scoreRef = useRef<number>(score);
   scoreRef.current = score;
+
+  const isGameOverRef = useRef(false);
+  isGameOverRef.current = isGameOver;
 
   const prevIsPlayingRef = useRef<boolean>(false);
 
@@ -182,11 +191,16 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
       { x: 8, y: 9 },
       { x: 8, y: 10 },
     ];
+    snakeRef.current = initSnake;
     setSnake(initSnake);
     setDirection('UP');
     directionRef.current = 'UP';
-    setFood(generateFood(initSnake));
+    const initFood = generateFood(initSnake);
+    foodRef.current = initFood;
+    setFood(initFood);
     setScore(0);
+    scoreRef.current = 0;
+    isGameOverRef.current = false;
     setIsGameOver(false);
     onScoreChangeRef.current?.(0);
   }, [generateFood]);
@@ -229,48 +243,57 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({
     if (!isPlaying || isGameOver) return;
 
     const interval = setInterval(() => {
-      setSnake(prevSnake => {
-        const head = { ...prevSnake[0] };
-        const currentDir = directionRef.current;
+      if (isGameOverRef.current) return;
 
-        if (currentDir === 'UP') head.y -= 1;
-        if (currentDir === 'DOWN') head.y += 1;
-        if (currentDir === 'LEFT') head.x -= 1;
-        if (currentDir === 'RIGHT') head.x += 1;
+      const currentSnake = snakeRef.current;
+      const head = { ...currentSnake[0] };
+      const currentDir = directionRef.current;
 
-        // Collision with walls
-        if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-          setIsGameOver(true);
-          onGameOverRef.current(scoreRef.current);
-          return prevSnake;
-        }
+      if (currentDir === 'UP') head.y -= 1;
+      if (currentDir === 'DOWN') head.y += 1;
+      if (currentDir === 'LEFT') head.x -= 1;
+      if (currentDir === 'RIGHT') head.x += 1;
 
-        // Collision with self
-        if (prevSnake.some(seg => seg.x === head.x && seg.y === head.y)) {
-          setIsGameOver(true);
-          onGameOverRef.current(scoreRef.current);
-          return prevSnake;
-        }
+      // Collision with walls
+      if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+        clearInterval(interval);
+        isGameOverRef.current = true;
+        setIsGameOver(true);
+        onGameOverRef.current(scoreRef.current);
+        return;
+      }
 
-        const newSnake = [head, ...prevSnake];
+      // Collision with self
+      if (currentSnake.some(seg => seg.x === head.x && seg.y === head.y)) {
+        clearInterval(interval);
+        isGameOverRef.current = true;
+        setIsGameOver(true);
+        onGameOverRef.current(scoreRef.current);
+        return;
+      }
 
-        // Eat food
-        if (head.x === food.x && head.y === food.y) {
-          const nextScore = scoreRef.current + 10;
-          setScore(nextScore);
-          scoreRef.current = nextScore;
-          onScoreChangeRef.current?.(nextScore);
-          setFood(generateFood(newSnake));
-        } else {
-          newSnake.pop();
-        }
+      const currentFood = foodRef.current;
+      const newSnake = [head, ...currentSnake];
 
-        return newSnake;
-      });
+      // Eat food
+      if (head.x === currentFood.x && head.y === currentFood.y) {
+        const nextScore = scoreRef.current + 10;
+        scoreRef.current = nextScore;
+        setScore(nextScore);
+        onScoreChangeRef.current?.(nextScore);
+        const newFood = generateFood(newSnake);
+        foodRef.current = newFood;
+        setFood(newFood);
+      } else {
+        newSnake.pop();
+      }
+
+      snakeRef.current = newSnake;
+      setSnake(newSnake);
     }, Math.max(70, INITIAL_SPEED - Math.floor(score / 30) * 10));
 
     return () => clearInterval(interval);
-  }, [isPlaying, isGameOver, food, score, generateFood]);
+  }, [isPlaying, isGameOver, score, generateFood]);
 
   // Canvas drawing: renderiza o canvas principal (estilo claro original) e o espelho (estilo arcade escuro)
   useEffect(() => {

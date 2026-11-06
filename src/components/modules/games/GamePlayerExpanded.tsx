@@ -37,6 +37,7 @@ export const GamePlayerExpanded: React.FC<GamePlayerExpandedProps> = ({ onExit, 
   const handleStartGame = () => {
     setCurrentScore(0);
     currentScoreRef.current = 0;
+    hasFinishedRef.current = false;
     if (isReflexGame) {
       setCountdown(3);
       setGameState('countdown');
@@ -75,9 +76,9 @@ export const GamePlayerExpanded: React.FC<GamePlayerExpandedProps> = ({ onExit, 
     finishGameRound(score);
   }, [finishGameRound]);
 
-  // Fechar o modal ou clicar em voltar dispara o fim da partida e encerra a tentativa
+  // Fechar o modal ou clicar em voltar encerra a partida e registra caso estivesse em andamento
   const handleExit = useCallback(() => {
-    if (!hasFinishedRef.current) {
+    if (!hasFinishedRef.current && (gameState === 'playing' || gameState === 'gameover')) {
       hasFinishedRef.current = true;
       finishGameRound(currentScoreRef.current);
     }
@@ -86,17 +87,7 @@ export const GamePlayerExpanded: React.FC<GamePlayerExpandedProps> = ({ onExit, 
     } else {
       setDrawerMode('normal');
     }
-  }, [finishGameRound, onExit, setDrawerMode]);
-
-  // Garante que, caso o modal seja desmontado de forma abrupta, a pontuacao seja registrada e a tentativa eliminada
-  useEffect(() => {
-    return () => {
-      if (!hasFinishedRef.current) {
-        hasFinishedRef.current = true;
-        finishGameRound(currentScoreRef.current);
-      }
-    };
-  }, [finishGameRound]);
+  }, [finishGameRound, gameState, onExit, setDrawerMode]);
 
   return (
     <Modal

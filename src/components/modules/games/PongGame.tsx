@@ -148,6 +148,9 @@ export const PongGame: React.FC<PongGameProps> = ({
   const [rallyCount, setRallyCount] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
 
+  const isGameOverRef = useRef(false);
+  isGameOverRef.current = isGameOver;
+
   const prevIsPlayingRef = useRef<boolean>(false);
 
   const stateRef = useRef({
@@ -179,6 +182,7 @@ export const PongGame: React.FC<PongGameProps> = ({
   }, []);
 
   const resetGame = useCallback(() => {
+    isGameOverRef.current = false;
     setPlayerY(HEIGHT / 2 - PADDLE_HEIGHT / 2);
     setAiY(HEIGHT / 2 - PADDLE_HEIGHT / 2);
     setPlayerScore(0);
@@ -230,6 +234,8 @@ export const PongGame: React.FC<PongGameProps> = ({
     if (!isPlaying || isGameOver) return;
 
     const interval = setInterval(() => {
+      if (isGameOverRef.current) return;
+
       const s = stateRef.current;
       let newBx = s.ball.x + s.ball.vx;
       let newBy = s.ball.y + s.ball.vy;
@@ -295,16 +301,12 @@ export const PongGame: React.FC<PongGameProps> = ({
 
       // Score conditions
       if (newBx < 0) {
-        // AI scored
-        const nextAiScore = s.aiScore + 1;
-        setAiScore(nextAiScore);
-        if (nextAiScore >= WINNING_SCORE || s.playerScore + nextAiScore >= WINNING_SCORE * 2) {
-          setIsGameOver(true);
-          const finalScore = s.playerScore * 25 + s.rallyCount * 2;
-          onGameOverRef.current(finalScore);
-        } else {
-          resetBall('toPlayer');
-        }
+        // AI scored - jogador errou a rebatida (fim de jogo)
+        clearInterval(interval);
+        isGameOverRef.current = true;
+        setIsGameOver(true);
+        const finalScore = s.playerScore * 25 + s.rallyCount * 2;
+        onGameOverRef.current(finalScore);
         return;
       } else if (newBx > WIDTH) {
         // Player scored
@@ -313,7 +315,9 @@ export const PongGame: React.FC<PongGameProps> = ({
         const updatedPoints = nextPlayerScore * 25 + s.rallyCount * 2;
         onScoreChangeRef.current?.(updatedPoints);
 
-        if (nextPlayerScore >= WINNING_SCORE || nextPlayerScore + s.aiScore >= WINNING_SCORE * 2) {
+        if (nextPlayerScore >= WINNING_SCORE) {
+          clearInterval(interval);
+          isGameOverRef.current = true;
           setIsGameOver(true);
           const finalScore = nextPlayerScore * 30 + s.rallyCount * 3;
           onGameOverRef.current(finalScore);
