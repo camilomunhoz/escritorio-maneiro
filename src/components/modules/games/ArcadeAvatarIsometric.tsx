@@ -1,107 +1,208 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { UserAvatar } from '../../ui/UserAvatar';
 
-interface ArcadeAvatarIsometricProps {
+export interface ArcadeAvatarIsometricProps {
   avatarColor?: string;
   avatarBody?: string;
-  avatarFace?: string;
   userId?: string;
-  gameTitle: string;
 }
 
 export const ArcadeAvatarIsometric: React.FC<ArcadeAvatarIsometricProps> = ({
   avatarColor,
   avatarBody,
-  avatarFace,
   userId,
-  gameTitle,
 }) => {
+  const miniCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // Reproduz em tempo real o canvas do jogo ativo na tela do fliperama
+  useEffect(() => {
+    let animId: number;
+    let idleTick = 0;
+
+    const render = () => {
+      const targetCanvas = miniCanvasRef.current;
+      if (!targetCanvas) return;
+      const ctx = targetCanvas.getContext('2d');
+      if (!ctx) return;
+
+      const sourceCanvas = document.getElementById('active-game-canvas') as HTMLCanvasElement | null;
+
+      if (sourceCanvas && sourceCanvas.width > 0 && sourceCanvas.height > 0) {
+        // Limpa a tela com a cor de fundo padrao do fliperama
+        ctx.fillStyle = '#0F172A';
+        ctx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
+
+        // Simulacao estrita de object-fit: contain sem stretch nem cortes
+        const srcW = sourceCanvas.width;
+        const srcH = sourceCanvas.height;
+        const dstW = targetCanvas.width;
+        const dstH = targetCanvas.height;
+
+        const srcRatio = srcW / srcH;
+        const dstRatio = dstW / dstH;
+
+        let drawW = dstW;
+        let drawH = dstH;
+        let drawX = 0;
+        let drawY = 0;
+
+        if (srcRatio > dstRatio) {
+          // Fonte mais larga que a proporcao do monitor: letterbox (barras superior e inferior)
+          drawW = dstW;
+          drawH = dstW / srcRatio;
+          drawY = (dstH - drawH) / 2;
+        } else {
+          // Fonte mais quadrada ou vertical: pillarbox (barras laterais)
+          drawH = dstH;
+          drawW = dstH * srcRatio;
+          drawX = (dstW - drawW) / 2;
+        }
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(sourceCanvas, drawX, drawY, drawW, drawH);
+      } else {
+        // Tela retro de standby quando fora de partida
+        idleTick++;
+        ctx.fillStyle = '#0F172A';
+        ctx.fillRect(0, 0, targetCanvas.width, targetCanvas.height);
+
+        // Grade sutil de scanlines
+        ctx.strokeStyle = '#1E293B';
+        ctx.lineWidth = 1;
+        for (let y = 0; y < targetCanvas.height; y += 6) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(targetCanvas.width, y);
+          ctx.stroke();
+        }
+
+        // Texto pulsante em tom esmeralda retro
+        if (Math.floor(idleTick / 30) % 2 === 0) {
+          ctx.fillStyle = '#34D399';
+          ctx.font = 'bold 11px monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('INSERT COIN', targetCanvas.width / 2, targetCanvas.height / 2);
+        }
+      }
+
+      animId = requestAnimationFrame(render);
+    };
+
+    animId = requestAnimationFrame(render);
+
+    return () => {
+      cancelAnimationFrame(animId);
+    };
+  }, []);
+
   return (
-    <div className="w-full h-full flex flex-col items-center justify-between p-4 bg-gradient-to-b from-calm-100 to-calm-200/90 text-calm-800 select-none">
-      {/* Informações Superiores */}
-      <div className="w-full text-center">
-        <span className="text-[10px] uppercase tracking-wider font-semibold text-calm-500">
-          Modo Sessão Ativa
-        </span>
-        <h3 className="text-sm font-semibold text-calm-900 mt-0.5">{gameTitle}</h3>
-        <p className="text-[11px] text-calm-600 mt-0.5">Seu avatar na partida</p>
-      </div>
+    <div className="w-full h-full flex items-center justify-center p-3 select-none">
+      {/* Cenario Isometrico Ampliado do Fliperama com o Avatar */}
+      <div className="relative w-56 sm:w-60 h-72 sm:h-80 flex items-center justify-center">
+        {/* Sombra da base isometrica */}
+        <div className="absolute bottom-3 w-48 h-14 bg-calm-400/25 rounded-full blur-[4px]" />
 
-      {/* Cenário Isométrico do Fliperama com o Avatar */}
-      <div className="relative w-48 h-56 flex items-center justify-center">
-        {/* Sombra da base isométrica */}
-        <div className="absolute bottom-4 w-36 h-12 bg-calm-400/20 rounded-full blur-[3px]" />
-
-        {/* Gabinete do Fliperama / Arcade em SVG Vetorial */}
+        {/* Gabinete do Fliperama em SVG Vetorial */}
         <svg
           viewBox="0 0 200 240"
-          className="absolute inset-0 w-full h-full drop-shadow-md"
+          className="absolute inset-0 w-full h-full drop-shadow-md pointer-events-none"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Gabinete Lateral / Traseiro */}
+          {/* Gabinete Lateral / Traseiro com perspectiva */}
           <path
-            d="M50 40 L90 20 L150 20 L150 180 L110 200 L50 200 Z"
+            d="M36 26 L86 12 L164 12 L164 196 L116 216 L36 216 Z"
             fill="#94A3B8"
-            opacity="0.3"
+            opacity="0.28"
           />
+
           {/* Corpo do Arcade Principal */}
           <path
-            d="M60 50 L140 50 L140 190 L60 190 Z"
+            d="M45 35 L155 35 L155 205 L45 205 Z"
             fill="#475569"
-            rx="6"
+            rx="8"
           />
-          {/* Marquee Superior */}
-          <rect x="68" y="58" width="64" height="18" rx="3" fill="#E2E8F0" />
-          <text x="100" y="71" textAnchor="middle" fontSize="9" fontWeight="bold" fill="#334155" letterSpacing="1">
+
+          {/* Marquee Superior Iluminado */}
+          <rect x="56" y="44" width="88" height="20" rx="3" fill="#E2E8F0" />
+          <text
+            x="100"
+            y="58"
+            textAnchor="middle"
+            fontSize="10"
+            fontWeight="bold"
+            fill="#334155"
+            letterSpacing="1.5"
+          >
             ARCADE
           </text>
 
-          {/* Tela do Fliperama com Brilho Pulsante Suave (Sem revelar o jogo) */}
-          <rect x="70" y="84" width="60" height="42" rx="4" fill="#0F172A" />
-          <rect x="74" y="88" width="52" height="34" rx="2" fill="#1E293B" />
-          {/* Linhas de scanline no monitor do arcade */}
-          <line x1="74" y1="96" x2="126" y2="96" stroke="#38BDF8" strokeWidth="0.8" opacity="0.4" />
-          <line x1="74" y1="104" x2="126" y2="104" stroke="#34D399" strokeWidth="0.8" opacity="0.4" />
-          <line x1="74" y1="112" x2="126" y2="112" stroke="#F472B6" strokeWidth="0.8" opacity="0.4" />
+          {/* Moldura Externa da Tela do Monitor */}
+          <rect x="52" y="68" width="96" height="70" rx="5" fill="#0F172A" />
 
-          {/* Painel de Controle com Joystick e Botões */}
-          <path d="M62 132 L138 132 L144 154 L56 154 Z" fill="#334155" />
-          {/* Base do Joystick */}
-          <circle cx="82" cy="143" r="5" fill="#1E293B" />
-          <line x1="82" y1="143" x2="84" y2="136" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" />
-          <circle cx="84" cy="135" r="3.5" fill="#EF4444" className="animate-pulse" />
+          {/* Fundo do Monitor */}
+          <rect x="56" y="72" width="88" height="62" rx="3" fill="#1E293B" />
 
-          {/* Botões do Arcade */}
-          <circle cx="106" cy="144" r="3" fill="#38BDF8" />
-          <circle cx="116" cy="141" r="3" fill="#34D399" />
-          <circle cx="126" cy="144" r="3" fill="#FBBF24" />
+          {/* Painel de Controle com Joystick e Botoes */}
+          <path d="M42 144 L158 144 L164 168 L36 168 Z" fill="#334155" />
 
-          {/* Painel Frontal Inferior com Entrada de Moeda/Ficha */}
-          <rect x="68" y="160" width="64" height="26" rx="2" fill="#334155" />
-          <rect x="94" y="166" width="12" height="14" rx="1" fill="#1E293B" />
-          <line x1="100" y1="168" x2="100" y2="176" stroke="#94A3B8" strokeWidth="1.5" />
+          {/* Base e Haste do Joystick */}
+          <circle cx="74" cy="156" r="6" fill="#1E293B" />
+          <line x1="74" y1="156" x2="77" y2="147" stroke="#CBD5E1" strokeWidth="3" strokeLinecap="round" />
+          <circle cx="77" cy="146" r="4.5" fill="#EF4444" className="animate-pulse" />
+
+          {/* Botoes de Acao do Fliperama */}
+          <circle cx="108" cy="157" r="3.5" fill="#38BDF8" />
+          <circle cx="120" cy="153" r="3.5" fill="#34D399" />
+          <circle cx="132" cy="157" r="3.5" fill="#FBBF24" />
+
+          {/* Painel Frontal Inferior com Entrada de Ficha */}
+          <rect x="74" y="176" width="52" height="24" rx="2" fill="#334155" />
+          <rect x="94" y="180" width="12" height="16" rx="1" fill="#1E293B" />
+          <line x1="100" y1="183" x2="100" y2="192" stroke="#94A3B8" strokeWidth="1.5" />
         </svg>
 
-        {/* Avatar Posicionado em frente ao Arcade com o novo padrao bare, followMouse e xl */}
-        <div className="absolute bottom-3 right-4 z-10 flex items-center justify-center">
+        {/* Tela do Arcade com Reproducao ao Vivo do Jogo */}
+        <div
+          className="absolute overflow-hidden rounded-[3px] bg-slate-950 border border-slate-700/80 shadow-inner pointer-events-none"
+          style={{
+            left: '28%',
+            top: '30%',
+            width: '44%',
+            height: '25.83%',
+          }}
+        >
+          <canvas
+            ref={miniCanvasRef}
+            width={176}
+            height={124}
+            className="w-full h-full object-cover"
+            style={{ imageRendering: 'pixelated' }}
+          />
+
+          {/* Linhas de scanline sutis sobre a tela do monitor */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/5 to-transparent pointer-events-none opacity-60" />
+          <div
+            className="absolute inset-0 pointer-events-none opacity-20"
+            style={{
+              backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.4) 2px, rgba(0, 0, 0, 0.4) 4px)',
+            }}
+          />
+        </div>
+
+        {/* Avatar Posicionado de Costas (noFace, sem followMouse) em frente ao Arcade */}
+        <div className="absolute bottom-2 right-3 z-10 flex items-center justify-center pointer-events-none">
           <UserAvatar
             userId={userId}
             color={avatarColor}
             bodyId={avatarBody}
-            faceId={avatarFace}
-            size="xl"
+            size="xxl"
             bare
-            followMouse
+            noFace={true}
           />
         </div>
-      </div>
-
-      {/* Dica de Ergonomia durante a sessão */}
-      <div className="w-full bg-white/70 backdrop-blur-xs p-2.5 rounded-lg border border-calm-200/80 text-center">
-        <p className="text-[10px] text-calm-600 leading-tight">
-          Aproveite estes 3 a 5 minutos de pausa para desconectar o foco mental das tarefas corporativas.
-        </p>
       </div>
     </div>
   );

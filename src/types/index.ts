@@ -77,12 +77,26 @@ export interface RoundLeaderboardEntry {
   avatarFace?: string;
 }
 
+export interface GameHighscoreEntry {
+  id: string;
+  game: GameType;
+  userId: string;
+  name: string;
+  score: number;
+  department: string;
+  avatarColor: string;
+  avatarBody?: string;
+  avatarFace?: string;
+  timestamp: number;
+}
+
 export interface GameCycleState {
   nextReleaseTimestamp: number;
   currentGame: GameType;
   playedInCurrentCycle: boolean;
   lastScore: number;
   roundLeaderboard: RoundLeaderboardEntry[];
+  globalHighscores?: GameHighscoreEntry[];
 }
 
 export interface HealthState {

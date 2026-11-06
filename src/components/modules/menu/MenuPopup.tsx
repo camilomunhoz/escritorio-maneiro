@@ -30,8 +30,13 @@ export const MenuPopup: React.FC<MenuPopupProps> = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    const handlePointerDownOutside = (event: MouseEvent) => {
-      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+    const handlePointerDownOutside = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as Element | null;
+      if (
+        popupRef.current &&
+        !popupRef.current.contains(event.target as Node) &&
+        !target?.closest('[data-menu-toggle="true"]')
+      ) {
         onClose();
       }
     };
@@ -43,10 +48,12 @@ export const MenuPopup: React.FC<MenuPopupProps> = ({
     };
 
     document.addEventListener('mousedown', handlePointerDownOutside);
+    document.addEventListener('touchstart', handlePointerDownOutside);
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('mousedown', handlePointerDownOutside);
+      document.removeEventListener('touchstart', handlePointerDownOutside);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);

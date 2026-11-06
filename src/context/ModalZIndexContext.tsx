@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useRef, useCallback, useEffect, useId } from 'react';
+import React, { createContext, useContext, useState, useRef, useCallback, useEffect, useId, useMemo } from 'react';
 
 export type ModalPriority = 'normal' | 'high' | 'topmost' | 'menu';
 
@@ -52,8 +52,6 @@ export const ModalZIndexProvider: React.FC<ModalZIndexProviderProps> = ({
   baseZIndex = BASE_MODAL_Z_INDEX,
 }) => {
   const activeModalsRef = useRef<Map<string, ModalRegistration>>(new Map());
-  const [topZIndex, setTopZIndex] = useState<number>(baseZIndex);
-  const [activeModalCount, setActiveModalCount] = useState<number>(0);
 
   const calculateNextZIndex = useCallback((priority: ModalPriority = 'normal'): number => {
     let currentMax = baseZIndex;
@@ -85,40 +83,12 @@ export const ModalZIndexProvider: React.FC<ModalZIndexProviderProps> = ({
       mountedAt: Date.now(),
     });
 
-    // Defer state update to next microtask to avoid 'setState in render' warnings
-    queueMicrotask(() => {
-      setTopZIndex(nextZ);
-      setActiveModalCount(activeModalsRef.current.size);
-    });
-
     return nextZ;
   }, [calculateNextZIndex]);
 
   const unregisterModal = useCallback((id: string) => {
-    if (!activeModalsRef.current.has(id)) {
-      return;
-    }
-
     activeModalsRef.current.delete(id);
-
-    // Defer state update to next microtask to avoid 'setState in render' warnings
-    queueMicrotask(() => {
-      const newCount = activeModalsRef.current.size;
-      setActiveModalCount(newCount);
-
-      if (newCount === 0) {
-        setTopZIndex(baseZIndex);
-      } else {
-        let currentMax = baseZIndex;
-        for (const reg of activeModalsRef.current.values()) {
-          if (reg.zIndex > currentMax) {
-            currentMax = reg.zIndex;
-          }
-        }
-        setTopZIndex(currentMax);
-      }
-    });
-  }, [baseZIndex]);
+  }, []);
 
   const bringToFront = useCallback((id: string): number => {
     const existing = activeModalsRef.current.get(id);
@@ -146,10 +116,6 @@ export const ModalZIndexProvider: React.FC<ModalZIndexProviderProps> = ({
       mountedAt: Date.now(),
     });
 
-    queueMicrotask(() => {
-      setTopZIndex(nextZ);
-    });
-
     return nextZ;
   }, [baseZIndex]);
 
@@ -157,14 +123,23 @@ export const ModalZIndexProvider: React.FC<ModalZIndexProviderProps> = ({
     return activeModalsRef.current.get(id)?.zIndex;
   }, []);
 
-  const value = {
+  // O valor do contexto e estritamente memoizado para evitar qualquer cascata de re-renders no React
+  const value = useMemo<ModalZIndexContextValue>(() => ({
     registerModal,
     unregisterModal,
     bringToFront,
     getModalZIndex,
-    topZIndex,
-    activeModalCount,
-  };
+    get topZIndex() {
+      let max = baseZIndex;
+      for (const reg of activeModalsRef.current.values()) {
+        if (reg.zIndex > max) max = reg.zIndex;
+      }
+      return max;
+    },
+    get activeModalCount() {
+      return activeModalsRef.current.size;
+    },
+  }), [registerModal, unregisterModal, bringToFront, getModalZIndex, baseZIndex]);
 
   return (
     <ModalZIndexContext.Provider value={value}>
@@ -192,8 +167,6 @@ export function useModalZIndex(options?: UseModalZIndexOptions) {
   const priority = options?.priority ?? 'normal';
   const fallbackBase = options?.baseZIndex ?? BASE_MODAL_Z_INDEX;
 
-  const wasOpenRef = useRef(isOpen);
-
   // Alocação síncrona na inicialização do estado para evitar qualquer flicker visual no primeiro render
   const [allocatedZIndex, setAllocatedZIndex] = useState<number>(() => {
     if (!context) {
@@ -204,19 +177,6 @@ export function useModalZIndex(options?: UseModalZIndexOptions) {
     }
     return fallbackBase;
   });
-
-  // Garante registro imediato durante o render caso isOpen mude para true
-  if (isOpen && (!wasOpenRef.current || (context && context.getModalZIndex(id) === undefined))) {
-    wasOpenRef.current = true;
-    if (context) {
-      context.registerModal(id, priority);
-    }
-  } else if (!isOpen && wasOpenRef.current) {
-    wasOpenRef.current = false;
-    if (context) {
-      context.unregisterModal(id);
-    }
-  }
 
   useEffect(() => {
     if (!context) return;

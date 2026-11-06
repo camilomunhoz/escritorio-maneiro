@@ -38,6 +38,11 @@ export function loadAppState(): AppState {
     if (!parsed.user.avatarBody) parsed.user.avatarBody = initial.user.avatarBody || 'body-15';
     if (!parsed.user.avatarFace) parsed.user.avatarFace = initial.user.avatarFace || 'face-1';
     if (Array.isArray(parsed.coworkers)) {
+      if (parsed.coworkers.length < initial.coworkers.length) {
+        const existingIds = new Set(parsed.coworkers.map(c => c.id));
+        const missing = initial.coworkers.filter(c => !existingIds.has(c.id));
+        parsed.coworkers = [...parsed.coworkers, ...missing];
+      }
       parsed.coworkers.forEach((cw, idx) => {
         if (!cw.avatarBody) cw.avatarBody = initial.coworkers[idx]?.avatarBody || 'body-15';
         if (!cw.avatarFace) cw.avatarFace = initial.coworkers[idx]?.avatarFace || 'face-1';
@@ -56,6 +61,13 @@ export function loadAppState(): AppState {
           }
         }
       });
+    }
+    if (parsed.gameCycle) {
+      if (!Array.isArray(parsed.gameCycle.globalHighscores) || parsed.gameCycle.globalHighscores.length < (initial.gameCycle.globalHighscores?.length || 0)) {
+        const existingIds = new Set((parsed.gameCycle.globalHighscores || []).map(h => h.id));
+        const missing = (initial.gameCycle.globalHighscores || []).filter(h => !existingIds.has(h.id));
+        parsed.gameCycle.globalHighscores = [...(parsed.gameCycle.globalHighscores || []), ...missing];
+      }
     }
     return parsed;
   } catch (error) {

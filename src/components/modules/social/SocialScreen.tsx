@@ -5,6 +5,7 @@ import { UserAvatar } from '../../ui/UserAvatar';
 import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { ProgressBar } from '../../ui/ProgressBar';
+import { SegmentedControl } from '../../ui/SegmentedControl';
 import { NewConnectionModal } from './NewConnectionModal';
 import { calculateConnectionLevel } from '../../../utils/socialUtils';
 import { formatNotificationTime } from '../../../utils/formatters';
@@ -165,43 +166,21 @@ export const SocialScreen: React.FC<SocialScreenProps> = ({
 
       {/* Conteudo Rolavel */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0 flex flex-col justify-start">
-        {/* Sub-tabs: Recomendados vs Conexoes vs Convites */}
-        <div className="flex items-center gap-1 bg-calm-100 p-0.5 rounded-lg text-xs">
-          <button
-            onClick={() => setActiveTab('recommendations')}
-            className={`flex-1 py-1 text-center font-medium rounded-md transition cursor-pointer ${
-              activeTab === 'recommendations'
-                ? 'bg-white text-calm-900 shadow-xs'
-                : 'text-calm-600 hover:text-calm-900'
-            }`}
-          >
-            Recomendados
-          </button>
-          <button
-            onClick={() => setActiveTab('connections')}
-            className={`flex-1 py-1 text-center font-medium rounded-md transition cursor-pointer flex items-center justify-center gap-1 ${
-              activeTab === 'connections'
-                ? 'bg-white text-calm-900 shadow-xs'
-                : 'text-calm-600 hover:text-calm-900'
-            }`}
-          >
-            <span>Conexões</span>
-            <span className="text-[10px] text-calm-400 font-normal">({connections.length})</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('invitations')}
-            className={`flex-1 py-1 text-center font-medium rounded-md transition cursor-pointer flex items-center justify-center gap-1.5 ${
-              activeTab === 'invitations'
-                ? 'bg-white text-calm-900 shadow-xs'
-                : 'text-calm-600 hover:text-calm-900'
-            }`}
-          >
-            <span>Convites</span>
-            {pendingAttentionCount > 0 && (
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500" title={`${pendingAttentionCount} convites/encontros ativos`} />
-            )}
-          </button>
-        </div>
+        {/* Sub-tabs: Recomendados vs Conexoes vs Convites (SSOT SegmentedControl) */}
+        <SegmentedControl<'recommendations' | 'connections' | 'invitations'>
+          value={activeTab}
+          onChange={setActiveTab}
+          options={[
+            { value: 'recommendations', label: 'Recomendados' },
+            { value: 'connections', label: 'Conexões', badge: `(${connections.length})` },
+            {
+              value: 'invitations',
+              label: 'Convites',
+              indicator: pendingAttentionCount > 0,
+              indicatorTitle: `${pendingAttentionCount} convites/encontros ativos`,
+            },
+          ]}
+        />
 
         {/* Content: 1. Recommendations */}
         {activeTab === 'recommendations' && (

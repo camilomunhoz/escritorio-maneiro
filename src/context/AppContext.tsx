@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderboardEntry, NotificationItem, UserConnection, InvitationType, XpGainBadge } from '../types';
+import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderboardEntry, GameHighscoreEntry, NotificationItem, UserConnection, InvitationType, XpGainBadge } from '../types';
 import { loadAppState, saveAppState, resetAppState } from '../services/storageService';
 import { INITIAL_COWORKERS, createInitialAppState, getRandomDailyGoals } from '../services/mockDataService';
 import { getXpRewardForEncounter, calculateConnectionLevel } from '../utils/socialUtils';
@@ -480,6 +480,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         g.pillar === 'games' ? { ...g, completed: true, progress: g.target } : g
       );
 
+      const newHighscoreEntry: GameHighscoreEntry = {
+        id: `hs-${Date.now()}-${prev.user.id}`,
+        game: prev.gameCycle.currentGame,
+        userId: prev.user.id,
+        name: prev.user.name,
+        score,
+        department: prev.user.department,
+        avatarColor: prev.user.avatarColor,
+        avatarBody: prev.user.avatarBody,
+        avatarFace: prev.user.avatarFace,
+        timestamp: Date.now(),
+      };
+
+      const updatedHighscores = [
+        ...(prev.gameCycle.globalHighscores || []),
+        newHighscoreEntry,
+      ];
+
       return {
         ...prev,
         dailyGoals: updatedGoals,
@@ -488,6 +506,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           playedInCurrentCycle: true,
           lastScore: score,
           roundLeaderboard: newRoundLeaderboard,
+          globalHighscores: updatedHighscores,
+          nextReleaseTimestamp: Date.now() + 3 * 60 * 60 * 1000,
         },
       };
     });

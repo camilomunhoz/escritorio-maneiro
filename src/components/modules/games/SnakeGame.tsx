@@ -1,10 +1,47 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, ArrowUp, ArrowDown, ArrowLeft, ArrowRight, Award } from 'lucide-react';
-import { Button } from '../../ui/Button';
 
-interface SnakeGameProps {
+export interface SnakeGameStyleConfig {
+  bgColor?: string;
+  gridColor?: string;
+  snakeHeadColor?: string;
+  snakeHeadBorder?: string;
+  snakeBodyColor?: string;
+  snakeBodyBorder?: string;
+  foodColor?: string;
+  foodGlow?: string;
+}
+
+// Estilo visual original do jogo na tela principal (tons claros e suaves)
+export const DEFAULT_SNAKE_STYLE: Required<SnakeGameStyleConfig> = {
+  bgColor: '#F8FAFC',
+  gridColor: '#E2E8F0',
+  snakeHeadColor: '#4F7762',
+  snakeHeadBorder: 'transparent',
+  snakeBodyColor: '#719B83',
+  snakeBodyBorder: 'transparent',
+  foodColor: '#C86D51',
+  foodGlow: 'transparent',
+};
+
+// Estilo arcade escuro e minimalista exclusivo para a tela do fliperama
+export const ARCADE_SNAKE_STYLE: Required<SnakeGameStyleConfig> = {
+  bgColor: '#0F172A',
+  gridColor: '#1E293B',
+  snakeHeadColor: '#5B8C70',
+  snakeHeadBorder: '#72A388',
+  snakeBodyColor: '#446E56',
+  snakeBodyBorder: '#5B8C70',
+  foodColor: '#E07A5F',
+  foodGlow: '#F4A261',
+};
+
+export interface SnakeGameProps {
+  isPlaying?: boolean;
+  onScoreChange?: (score: number) => void;
   onGameOver: (score: number) => void;
-  onExit: () => void;
+  className?: string;
+  styleConfig?: SnakeGameStyleConfig;
+  arcadeStyleConfig?: SnakeGameStyleConfig;
 }
 
 type Direction = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
@@ -17,8 +54,95 @@ const GRID_SIZE = 16;
 const CELL_SIZE = 20; // 320x320 canvas
 const INITIAL_SPEED = 140;
 
-export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver, onExit }) => {
+const renderSnakeToContext = (
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  snake: Point[],
+  food: Point,
+  style: Required<SnakeGameStyleConfig>,
+  isArcade: boolean
+) => {
+  // Limpar fundo
+  ctx.fillStyle = style.bgColor;
+  ctx.fillRect(0, 0, width, height);
+
+  // Grade
+  ctx.strokeStyle = style.gridColor;
+  ctx.lineWidth = isArcade ? 0.8 : 0.5;
+  for (let i = 0; i <= GRID_SIZE; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * CELL_SIZE, 0);
+    ctx.lineTo(i * CELL_SIZE, GRID_SIZE * CELL_SIZE);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(0, i * CELL_SIZE);
+    ctx.lineTo(GRID_SIZE * CELL_SIZE, i * CELL_SIZE);
+    ctx.stroke();
+  }
+
+  // Fruto
+  const foodCenterX = food.x * CELL_SIZE + CELL_SIZE / 2;
+  const foodCenterY = food.y * CELL_SIZE + CELL_SIZE / 2;
+  ctx.fillStyle = style.foodColor;
+  ctx.beginPath();
+  ctx.arc(foodCenterX, foodCenterY, CELL_SIZE / 2 - 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  if (isArcade && style.foodGlow !== 'transparent') {
+    ctx.fillStyle = style.foodGlow;
+    ctx.beginPath();
+    ctx.arc(foodCenterX - 1.5, foodCenterY - 1.5, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Segmentos da cobra
+  snake.forEach((segment, idx) => {
+    const isHead = idx === 0;
+    const x = segment.x * CELL_SIZE + (isArcade ? 1.5 : 1);
+    const y = segment.y * CELL_SIZE + (isArcade ? 1.5 : 1);
+    const size = CELL_SIZE - (isArcade ? 3 : 2);
+
+    ctx.fillStyle = isHead ? style.snakeHeadColor : style.snakeBodyColor;
+    ctx.beginPath();
+    ctx.roundRect(x, y, size, size, isHead ? 4 : 2);
+    ctx.fill();
+
+    if (isArcade && style.snakeHeadBorder !== 'transparent') {
+      ctx.strokeStyle = isHead ? style.snakeHeadBorder : style.snakeBodyBorder;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  });
+};
+
+export const SnakeGame: React.FC<SnakeGameProps> = ({
+  isPlaying = true,
+  onScoreChange,
+  onGameOver,
+  className = '',
+  styleConfig,
+  arcadeStyleConfig,
+}) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const mirrorCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  const style: Required<SnakeGameStyleConfig> = {
+    ...DEFAULT_SNAKE_STYLE,
+    ...styleConfig,
+  };
+
+  const arcadeStyle: Required<SnakeGameStyleConfig> = {
+    ...ARCADE_SNAKE_STYLE,
+    ...arcadeStyleConfig,
+  };
+
+  const onScoreChangeRef = useRef(onScoreChange);
+  onScoreChangeRef.current = onScoreChange;
+
+  const onGameOverRef = useRef(onGameOver);
+  onGameOverRef.current = onGameOver;
 
   const [snake, setSnake] = useState<Point[]>([
     { x: 8, y: 8 },
@@ -28,11 +152,15 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver, onExit }) => {
   const [direction, setDirection] = useState<Direction>('UP');
   const [food, setFood] = useState<Point>({ x: 8, y: 4 });
   const [score, setScore] = useState(0);
-  const [isRunning, setIsRunning] = useState(false);
   const [isGameOver, setIsGameOver] = useState(false);
 
   const directionRef = useRef<Direction>(direction);
   directionRef.current = direction;
+
+  const scoreRef = useRef<number>(score);
+  scoreRef.current = score;
+
+  const prevIsPlayingRef = useRef<boolean>(false);
 
   // Generate random food not on snake
   const generateFood = useCallback((currentSnake: Point[]): Point => {
@@ -48,7 +176,7 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver, onExit }) => {
     return newFood;
   }, []);
 
-  const resetGame = () => {
+  const resetGame = useCallback(() => {
     const initSnake = [
       { x: 8, y: 8 },
       { x: 8, y: 9 },
@@ -60,11 +188,21 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver, onExit }) => {
     setFood(generateFood(initSnake));
     setScore(0);
     setIsGameOver(false);
-    setIsRunning(true);
-  };
+    onScoreChangeRef.current?.(0);
+  }, [generateFood]);
+
+  // Reset ONLY when isPlaying transitions from false to true
+  useEffect(() => {
+    if (isPlaying && !prevIsPlayingRef.current) {
+      resetGame();
+    }
+    prevIsPlayingRef.current = isPlaying;
+  }, [isPlaying, resetGame]);
 
   // Keyboard controls
   useEffect(() => {
+    if (!isPlaying || isGameOver) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       const current = directionRef.current;
       if ((e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') && current !== 'DOWN') {
@@ -84,11 +222,11 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver, onExit }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isPlaying, isGameOver]);
 
   // Main game loop
   useEffect(() => {
-    if (!isRunning || isGameOver) return;
+    if (!isPlaying || isGameOver) return;
 
     const interval = setInterval(() => {
       setSnake(prevSnake => {
@@ -103,16 +241,14 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver, onExit }) => {
         // Collision with walls
         if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
           setIsGameOver(true);
-          setIsRunning(false);
-          onGameOver(score);
+          onGameOverRef.current(scoreRef.current);
           return prevSnake;
         }
 
         // Collision with self
         if (prevSnake.some(seg => seg.x === head.x && seg.y === head.y)) {
           setIsGameOver(true);
-          setIsRunning(false);
-          onGameOver(score);
+          onGameOverRef.current(scoreRef.current);
           return prevSnake;
         }
 
@@ -120,7 +256,10 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver, onExit }) => {
 
         // Eat food
         if (head.x === food.x && head.y === food.y) {
-          setScore(s => s + 10);
+          const nextScore = scoreRef.current + 10;
+          setScore(nextScore);
+          scoreRef.current = nextScore;
+          onScoreChangeRef.current?.(nextScore);
           setFood(generateFood(newSnake));
         } else {
           newSnake.pop();
@@ -131,146 +270,48 @@ export const SnakeGame: React.FC<SnakeGameProps> = ({ onGameOver, onExit }) => {
     }, Math.max(70, INITIAL_SPEED - Math.floor(score / 30) * 10));
 
     return () => clearInterval(interval);
-  }, [isRunning, isGameOver, food, score, generateFood, onGameOver]);
+  }, [isPlaying, isGameOver, food, score, generateFood]);
 
-  // Canvas drawing
+  // Canvas drawing: renderiza o canvas principal (estilo claro original) e o espelho (estilo arcade escuro)
   useEffect(() => {
+    // 1. Canvas principal (visivel ao usuario)
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Clear background
-    ctx.fillStyle = '#F8FAFC'; // calm-50
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Subtle grid lines
-    ctx.strokeStyle = '#E2E8F0'; // calm-200
-    ctx.lineWidth = 0.5;
-    for (let i = 0; i <= GRID_SIZE; i++) {
-      ctx.beginPath();
-      ctx.moveTo(i * CELL_SIZE, 0);
-      ctx.lineTo(i * CELL_SIZE, GRID_SIZE * CELL_SIZE);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(0, i * CELL_SIZE);
-      ctx.lineTo(GRID_SIZE * CELL_SIZE, i * CELL_SIZE);
-      ctx.stroke();
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        renderSnakeToContext(ctx, canvas.width, canvas.height, snake, food, style, false);
+      }
     }
 
-    // Draw Food (calm terracotta rounded circle)
-    ctx.fillStyle = '#C86D51'; // terracottaMuted
-    ctx.beginPath();
-    const foodCenterX = food.x * CELL_SIZE + CELL_SIZE / 2;
-    const foodCenterY = food.y * CELL_SIZE + CELL_SIZE / 2;
-    ctx.arc(foodCenterX, foodCenterY, CELL_SIZE / 2 - 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw Snake
-    snake.forEach((segment, idx) => {
-      ctx.fillStyle = idx === 0 ? '#4F7762' : '#719B83'; // sage-700 / sage-500
-      const x = segment.x * CELL_SIZE + 1;
-      const y = segment.y * CELL_SIZE + 1;
-      const size = CELL_SIZE - 2;
-
-      ctx.beginPath();
-      ctx.roundRect(x, y, size, size, idx === 0 ? 4 : 2);
-      ctx.fill();
-    });
-  }, [snake, food]);
+    // 2. Canvas espelho para a tela do fliperama
+    const mirrorCanvas = mirrorCanvasRef.current;
+    if (mirrorCanvas) {
+      const mirrorCtx = mirrorCanvas.getContext('2d');
+      if (mirrorCtx) {
+        renderSnakeToContext(mirrorCtx, mirrorCanvas.width, mirrorCanvas.height, snake, food, arcadeStyle, true);
+      }
+    }
+  }, [snake, food, style, arcadeStyle]);
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-between p-3 select-none">
-      {/* Top Bar */}
-      <div className="w-full flex items-center justify-between pb-2 border-b border-calm-200">
-        <div>
-          <h3 className="text-sm font-semibold text-calm-900">Cobrinha (Snake)</h3>
-          <p className="text-[11px] text-calm-500">Colete os frutos e evite colidir</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-sage-50 text-sage-900 px-3 py-1 rounded-md border border-sage-200">
-            <Award size={14} className="text-sage-600" />
-            <span className="text-xs font-semibold">{score} pts</span>
-          </div>
-        </div>
-      </div>
+    <div className={`w-full h-full flex items-center justify-center p-3 select-none ${className}`}>
+      {/* Canvas principal exibido na tela com a estetica original clara */}
+      <canvas
+        ref={canvasRef}
+        width={GRID_SIZE * CELL_SIZE}
+        height={GRID_SIZE * CELL_SIZE}
+        className="rounded-lg shadow-sm border border-calm-300 bg-white"
+      />
 
-      {/* Canvas Container */}
-      <div className="relative my-auto flex items-center justify-center">
-        <canvas
-          ref={canvasRef}
-          width={GRID_SIZE * CELL_SIZE}
-          height={GRID_SIZE * CELL_SIZE}
-          className="rounded-lg shadow-sm border border-calm-300 bg-white"
-        />
-
-        {/* Start / Game Over Overlay */}
-        {!isRunning && !isGameOver && (
-          <div className="absolute inset-0 bg-calm-900/40 backdrop-blur-xs rounded-lg flex flex-col items-center justify-center p-4 text-white">
-            <h4 className="text-base font-bold mb-1">Pronto para a pausa?</h4>
-            <p className="text-xs text-calm-200 text-center mb-4 max-w-[200px]">
-              Use as setas do teclado ou os botões para controlar a cobrinha.
-            </p>
-            <Button variant="primary" onClick={resetGame} className="gap-1.5">
-              <Play size={14} />
-              <span>Iniciar Partida</span>
-            </Button>
-          </div>
-        )}
-
-        {isGameOver && (
-          <div className="absolute inset-0 bg-calm-900/60 backdrop-blur-xs rounded-lg flex flex-col items-center justify-center p-4 text-white text-center">
-            <span className="text-xs font-semibold text-terracottaMuted-300 uppercase tracking-wider mb-1">
-              Fim de Partida
-            </span>
-            <p className="text-xl font-bold mb-1">{score} pontos</p>
-            <p className="text-xs text-calm-200 mb-4 max-w-[220px]">
-              Tentativa única registrada no ranking da rodada.
-            </p>
-            <Button variant="primary" size="sm" onClick={onExit} className="px-5">
-              <span>Concluir Partida</span>
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* On-Screen Direction Controls for Accessibility */}
-      <div className="w-full flex items-center justify-between pt-2 border-t border-calm-200">
-        <span className="text-[10px] text-calm-500">Teclas: Setas ou W, A, S, D</span>
-        <div className="grid grid-cols-3 gap-1 w-28">
-          <div />
-          <button
-            onClick={() => direction !== 'DOWN' && setDirection('UP')}
-            className="p-1.5 rounded bg-calm-100 hover:bg-calm-200 text-calm-700 flex justify-center cursor-pointer"
-            title="Cima"
-          >
-            <ArrowUp size={14} />
-          </button>
-          <div />
-          <button
-            onClick={() => direction !== 'RIGHT' && setDirection('LEFT')}
-            className="p-1.5 rounded bg-calm-100 hover:bg-calm-200 text-calm-700 flex justify-center cursor-pointer"
-            title="Esquerda"
-          >
-            <ArrowLeft size={14} />
-          </button>
-          <button
-            onClick={() => direction !== 'UP' && setDirection('DOWN')}
-            className="p-1.5 rounded bg-calm-100 hover:bg-calm-200 text-calm-700 flex justify-center cursor-pointer"
-            title="Baixo"
-          >
-            <ArrowDown size={14} />
-          </button>
-          <button
-            onClick={() => direction !== 'LEFT' && setDirection('RIGHT')}
-            className="p-1.5 rounded bg-calm-100 hover:bg-calm-200 text-calm-700 flex justify-center cursor-pointer"
-            title="Direita"
-          >
-            <ArrowRight size={14} />
-          </button>
-        </div>
-      </div>
+      {/* Canvas espelho consumido pela tela do arcade com estilo retro escuro */}
+      <canvas
+        ref={mirrorCanvasRef}
+        id="active-game-canvas"
+        width={GRID_SIZE * CELL_SIZE}
+        height={GRID_SIZE * CELL_SIZE}
+        className="hidden"
+        aria-hidden="true"
+      />
     </div>
   );
 };

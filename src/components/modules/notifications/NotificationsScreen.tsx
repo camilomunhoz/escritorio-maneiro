@@ -82,6 +82,7 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
 
   return (
     <Modal
+      id="notifications-modal"
       title={
         <div className="flex items-center gap-1.5">
           <span>Notificações</span>

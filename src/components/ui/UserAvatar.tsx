@@ -16,6 +16,7 @@ export interface UserAvatarProps extends Omit<AvatarSvgProps, 'color' | 'bodyId'
   color?: string;
   bodyId?: string;
   faceId?: string;
+  noFace?: boolean;
 }
 
 /**
@@ -26,7 +27,7 @@ export interface UserAvatarProps extends Omit<AvatarSvgProps, 'color' | 'bodyId'
  * - Se for um colega cadastrado, recupera o corpo e rosto configurados no registro.
  * - Suporta fallbacks confiaveis para registros estaticos, mocks ou IDs customizados.
  */
-export const UserAvatar: React.FC<UserAvatarProps> = ({
+export const UserAvatar: React.FC<UserAvatarProps> = React.memo(({
   userId,
   user,
   color,
@@ -42,12 +43,14 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
   let resolvedBodyId = bodyId || user?.avatarBody;
   let resolvedFaceId = faceId || user?.avatarFace;
 
-  // Resolucao dinamica a partir do estado global
+  // Resolucao dinamica a partir do estado global:
+  // Se for o usuario logado, sempre sincroniza com a versao mais recente
   if (targetId && state?.user && targetId === state.user.id) {
     resolvedColor = state.user.avatarColor || resolvedColor || '#6D8B75';
     resolvedBodyId = state.user.avatarBody || resolvedBodyId || DEFAULT_BODY_ID;
     resolvedFaceId = state.user.avatarFace || resolvedFaceId || DEFAULT_FACE_ID;
-  } else if (targetId && state?.coworkers) {
+  } else if (targetId && (!resolvedColor || !resolvedBodyId || !resolvedFaceId) && state?.coworkers) {
+    // Evita varredura desnecessaria se as propriedades visuais ja foram fornecidas
     const coworker = state.coworkers.find(c => c.id === targetId);
     if (coworker) {
       resolvedColor = coworker.avatarColor || resolvedColor || '#5A6B7C';
@@ -69,6 +72,8 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({
       {...avatarProps}
     />
   );
-};
+});
+
+UserAvatar.displayName = 'UserAvatar';
 
 export default UserAvatar;

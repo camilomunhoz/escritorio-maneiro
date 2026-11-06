@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { Zap, X, Sliders, RotateCcw, UserCheck, Sparkles } from 'lucide-react';
+import { Zap, X, Sliders, RotateCcw, UserCheck, Sparkles, Gamepad2 } from 'lucide-react';
 
 export const DevControls: React.FC = () => {
   const {
@@ -76,8 +76,8 @@ export const DevControls: React.FC = () => {
             onClick={godmodeUnlockNextGame}
             className="w-full text-left px-2.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition text-calm-200 flex items-center gap-2.5 cursor-pointer"
           >
-            <Zap size={14} className="text-sand-400 shrink-0" />
-            <span className="font-medium">Liberar Próximo Jogo (Bypass 3h)</span>
+            <Gamepad2 size={14} className="text-sand-400 shrink-0" />
+            <span className="font-medium">Liberar Próximo Jogo</span>
           </button>
 
           <button

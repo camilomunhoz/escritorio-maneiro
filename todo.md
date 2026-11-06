@@ -13,11 +13,11 @@
 
 10. [x] modais que são expanded não tem versão normal e devem sempre expandir (avatar, calibração, etc). não existem ambientes que são os dois (expanded ou normal). isso nao sao modos mutáveis e dinamicos, mas sim definição da estrutura do ambiente.
 
-11. [ ] ranking geral de jogos com podium
-12. [ ] começar o prototipo com um jogo já liberado. simplificar/melhorar interface do jogo.
-13. [ ] simplificar nomes dos jogos e content em geral.
-14. [ ] thumbnails dos jogos (simplesmente um autoplay ao fundo rodando com blur, precisamos criar um motor de IA para cada jogo).
-14a. [ ] timer (3,2,1) para o jogador se preparar antes de começar jogos como o da cobrinha e pong.
+11. [x] ranking geral de jogos com podium
+12. [x] começar o prototipo com um jogo já liberado. simplificar/melhorar interface do jogo.
+13: [x] simplificar nomes dos jogos e content em geral.
+14. [x] thumbnails dos jogos (simplesmente um autoplay ao fundo rodando com blur, precisamos criar um motor de IA para cada jogo).
+14a. [x] timer (3,2,1) para o jogador se preparar antes de começar jogos como o da cobrinha e pong.
 
 15. [ ] melhorar display de conquistas, deve ser layout expanded
 16. [ ] criar mais medalhas e conquistas
@@ -28,5 +28,6 @@
 18. [ ] melhorar UI do desktop e godmode bar
 18a. [ ] causar efeito de glitch sutil em toda a tela quando um cheat for utilizado
 18b. [ ] níveis do jogador devem ter requisito de XP incremental conforme avança. comece em 60 e some 20 a cada nível.
-19. [ ] começar no nível 0. criar animação de tempo passando. pensar nas notificações.
+19. [ ] começar no nível 0.
+20. [ ] pensar nas notificações.
 21. [ ] criar atalhos rapidos para validar postura e registrar água

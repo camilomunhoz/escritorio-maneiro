@@ -46,7 +46,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     <nav
       aria-label="Navegação Principal"
       style={isMenuOpen ? { zIndex: 130 } : undefined}
-      className={`w-full h-[52px] border-t border-calm-200/90 bg-calm-50/95 backdrop-blur-sm px-2 flex items-center justify-around select-none shrink-0 relative ${
+      className={`w-full h-[52px] border-t border-calm-200/90 bg-calm-50/95 backdrop-blur-sm px-1 flex items-center justify-between select-none shrink-0 relative ${
         isMenuOpen ? '' : 'z-30'
       }`}
     >
@@ -57,22 +57,36 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         return (
           <button
             key={tab.id}
+            data-menu-toggle={tab.id === 'menu' ? 'true' : undefined}
+            aria-expanded={tab.id === 'menu' ? Boolean(isMenuOpen) : undefined}
+            aria-haspopup={tab.id === 'menu' ? 'true' : undefined}
             onClick={() => handleTabClick(tab.id)}
-            className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-lg transition-all cursor-pointer ${
+            className={`flex-1 h-full max-w-[84px] relative flex flex-col items-center justify-center rounded-lg transition-colors cursor-pointer ${
               isActive
-                ? 'text-sage-800 font-semibold'
+                ? 'text-sage-900'
                 : 'text-calm-500 hover:text-calm-700 hover:bg-calm-100/50'
             }`}
           >
-            <div className="relative">
-              <Icon size={18} className={isActive ? 'text-sage-700 stroke-[2.2]' : 'text-calm-500 stroke-[1.8]'} />
+            <div className="relative flex items-center justify-center w-5 h-5">
+              <Icon
+                size={18}
+                className={`stroke-2 transition-colors ${
+                  isActive ? 'text-sage-700' : 'text-calm-500'
+                }`}
+              />
             </div>
-            <span className={`text-[10px] mt-0.5 tracking-tight ${isActive ? 'text-sage-900 font-semibold' : 'text-calm-500'}`}>
+            <span
+              className={`text-[10px] mt-0.5 tracking-tight font-medium transition-colors ${
+                isActive ? 'text-sage-900' : 'text-calm-500'
+              }`}
+            >
               {tab.label}
             </span>
-            {isActive && (
-              <span className="absolute bottom-0 w-6 h-0.5 rounded-full bg-sage-600" />
-            )}
+            <span
+              className={`absolute bottom-0.5 w-6 h-0.5 rounded-full bg-sage-600 transition-opacity duration-150 ${
+                isActive ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
           </button>
         );
       })}

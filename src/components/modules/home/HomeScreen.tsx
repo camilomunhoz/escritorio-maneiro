@@ -100,11 +100,21 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             return (
               <div
                 key={goal.id}
-                className={`p-2.5 rounded-lg border transition-all text-left flex items-center justify-between gap-2.5 ${
+                onClick={() => setCurrentTab(goal.pillar)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setCurrentTab(goal.pillar);
+                  }
+                }}
+                className={`p-2.5 rounded-lg border transition-all text-left flex items-center justify-between gap-2.5 cursor-pointer group ${
                   isCompleted
-                    ? 'bg-sage-50/70 border-sage-200 text-sage-900'
-                    : 'bg-white border-calm-200 shadow-soft'
+                    ? 'bg-sage-50/70 hover:bg-sage-100/60 border-sage-200 text-sage-900'
+                    : 'bg-white hover:bg-calm-50/70 border-calm-200 shadow-soft hover:shadow-md'
                 } border-l-4 ${pillarColors}`}
+                title={`Ir para seção de ${pillarNames}`}
               >
                 <div className="flex items-start gap-2 min-w-0 flex-1">
                   <div className="mt-0.5 shrink-0">
@@ -115,7 +125,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     )}
                   </div>
                   <div className="min-w-0">
-                    <p className={`text-xs font-medium ${isCompleted ? 'line-through text-calm-500' : 'text-calm-900'}`}>
+                    <p className={`text-xs font-medium transition ${isCompleted ? 'line-through text-calm-500' : 'text-calm-900 group-hover:text-calm-950'}`}>
                       {goal.title}
                     </p>
                     <p className="text-[10px] text-calm-500 leading-tight">
@@ -133,19 +143,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     </span>
                   )}
 
-                  {/* Seta para direita que leva até a seção correspondente */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setCurrentTab(goal.pillar);
-                    }}
-                    className="p-1 rounded-md text-calm-400 hover:text-calm-800 hover:bg-calm-100 transition cursor-pointer"
-                    title={`Ir para seção de ${pillarNames}`}
-                    aria-label={`Ir para a seção ${pillarNames}`}
+                  {/* Seta indicativa para a seção correspondente */}
+                  <span
+                    className="p-1 rounded-md text-calm-400 group-hover:text-calm-800 transition"
+                    aria-hidden="true"
                   >
                     <ChevronRight size={16} />
-                  </button>
+                  </span>
                 </div>
               </div>
             );

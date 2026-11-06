@@ -19,6 +19,7 @@ import { CoworkerProfileModal } from './components/modules/menu/CoworkerProfileM
 import { MedalsShowcaseModal } from './components/modules/menu/MedalsShowcaseModal';
 import { InvitationModal } from './components/modules/social/InvitationModal';
 import { SharedGoalExpandedModal } from './components/modules/home/SharedGoalExpandedModal';
+import { GlobalLeaderboardExpandedModal } from './components/modules/games/GlobalLeaderboardExpandedModal';
 import { NotificationsScreen } from './components/modules/notifications/NotificationsScreen';
 import { MenuPopup } from './components/modules/menu/MenuPopup';
 import { SettingsModal } from './components/modules/menu/SettingsModal';
@@ -38,6 +39,7 @@ const DrawerContent: React.FC = () => {
   // Active expanded environments
   const [isPlayingGame, setIsPlayingGame] = useState<boolean>(false);
   const [showSharedGoal, setShowSharedGoal] = useState<boolean>(false);
+  const [showGlobalLeaderboard, setShowGlobalLeaderboard] = useState<boolean>(false);
   const [showStretchVision, setShowStretchVision] = useState<boolean>(false);
   const [showPostureCalibration, setShowPostureCalibration] = useState<boolean>(false);
   const [showFacialDetection, setShowFacialDetection] = useState<boolean>(false);
@@ -59,6 +61,7 @@ const DrawerContent: React.FC = () => {
   const isExpanded = Boolean(
     isPlayingGame ||
     showSharedGoal ||
+    showGlobalLeaderboard ||
     showStretchVision ||
     showPostureCalibration ||
     showFacialDetection ||
@@ -78,6 +81,8 @@ const DrawerContent: React.FC = () => {
     setShowAvatarModal(false);
     setShowGlobalMedals(false);
     setShowSharedGoal(false);
+    setShowGlobalLeaderboard(false);
+
     setShowStretchVision(false);
     setShowPostureCalibration(false);
     setShowFacialDetection(false);
@@ -119,7 +124,22 @@ const DrawerContent: React.FC = () => {
         <SharedGoalExpandedModal
           onClose={() => {
             setShowSharedGoal(false);
+    setShowGlobalLeaderboard(false);
+
           }}
+          onOpenProfile={(coworker, isOwn) => {
+            if (isOwn) {
+              setShowOwnProfile(true);
+            } else if (coworker) {
+              setSelectedCoworkerProfile(coworker);
+            }
+          }}
+        />
+      );
+    } else if (showGlobalLeaderboard) {
+      expandedBase = (
+        <GlobalLeaderboardExpandedModal
+          onClose={() => setShowGlobalLeaderboard(false)}
           onOpenProfile={(coworker, isOwn) => {
             if (isOwn) {
               setShowOwnProfile(true);
@@ -245,6 +265,10 @@ const DrawerContent: React.FC = () => {
             onStartGame={() => {
               setIsPlayingGame(true);
             }}
+            onOpenGlobalLeaderboard={() => {
+              closeAllOverlays();
+              setShowGlobalLeaderboard(true);
+            }}
           />
         )}
         {state.currentTab === 'health' && (
@@ -320,7 +344,13 @@ const DrawerContent: React.FC = () => {
         isMenuOpen={isMenuOpen}
         isPopoverActive={isPopoverActive}
         onToggleMenu={() => {
-          setIsMenuOpen(prev => !prev);
+          if (isMenuOpen) {
+            setIsMenuOpen(false);
+          } else if (isPopoverActive) {
+            closeAllOverlays();
+          } else {
+            setIsMenuOpen(true);
+          }
         }}
         onTabSelect={handleSelectTab}
       />

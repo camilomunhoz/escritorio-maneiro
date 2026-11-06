@@ -569,10 +569,235 @@ export const INITIAL_COWORKERS: Coworker[] = [
     friendRequestStatus: 'none',
     selectedMedalIds: ['med-primeiro-passo'],
   },
+  {
+    id: 'cw-16',
+    name: 'Vinicius Prado',
+    department: 'Arquitetura de Soluções',
+    avatarColor: '#4E6E5D',
+    avatarBody: 'body-21',
+    avatarFace: 'face-3',
+    level: 6,
+    xp: 570,
+    streak: 11,
+    interests: ['Tecnologia', 'Café', 'Jogos de Tabuleiro'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-mestre-cobrinha', 'med-hidratado'],
+  },
+  {
+    id: 'cw-17',
+    name: 'Bruna Castilho',
+    department: 'Experiência do Usuário',
+    avatarColor: '#8C5A48',
+    avatarBody: 'body-22',
+    avatarFace: 'face-4',
+    level: 5,
+    xp: 440,
+    streak: 9,
+    interests: ['Design', 'Cinema', 'Café'],
+    isFriend: true,
+    friendRequestStatus: 'accepted',
+    selectedMedalIds: ['med-cafe-amigo'],
+  },
+  {
+    id: 'cw-18',
+    name: 'Felipe Antunes',
+    department: 'Segurança da Informação',
+    avatarColor: '#5F738E',
+    avatarBody: 'body-23',
+    avatarFace: 'face-5',
+    level: 7,
+    xp: 690,
+    streak: 16,
+    interests: ['Tecnologia', 'Programação', 'Música'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-embaixador'],
+  },
+  {
+    id: 'cw-19',
+    name: 'Renata Vasconcelos',
+    department: 'Gestão de Projetos',
+    avatarColor: '#B38F6D',
+    avatarBody: 'body-24',
+    avatarFace: 'face-6',
+    level: 4,
+    xp: 350,
+    streak: 5,
+    interests: ['Literatura', 'Caminhada', 'Café'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-primeiro-passo'],
+  },
+  {
+    id: 'cw-20',
+    name: 'Igor Meireles',
+    department: 'Engenharia de Dados',
+    avatarColor: '#688A75',
+    avatarBody: 'body-15',
+    avatarFace: 'face-7',
+    level: 6,
+    xp: 520,
+    streak: 8,
+    interests: ['Tecnologia', 'Culinária', 'Cinema'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-hidratado'],
+  },
+  {
+    id: 'cw-21',
+    name: 'Débora Pires',
+    department: 'Pessoas e Cultura',
+    avatarColor: '#7A6A53',
+    avatarBody: 'body-16',
+    avatarFace: 'face-8',
+    level: 5,
+    xp: 460,
+    streak: 10,
+    interests: ['Café', 'Literatura', 'Caminhada'],
+    isFriend: true,
+    friendRequestStatus: 'accepted',
+    selectedMedalIds: ['med-cafe-amigo', 'med-primeiro-passo'],
+  },
+  {
+    id: 'cw-22',
+    name: 'Leonardo Fontes',
+    department: 'DevOps & Nuvem',
+    avatarColor: '#886F8B',
+    avatarBody: 'body-17',
+    avatarFace: 'face-9',
+    level: 8,
+    xp: 810,
+    streak: 22,
+    interests: ['Tecnologia', 'Jogos de Tabuleiro', 'Música'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-ergonomia-ouro', 'med-mestre-cobrinha'],
+  },
+  {
+    id: 'cw-23',
+    name: 'Vanessa Camargo',
+    department: 'Design de Interfaces',
+    avatarColor: '#4D7C8A',
+    avatarBody: 'body-18',
+    avatarFace: 'face-10',
+    level: 4,
+    xp: 390,
+    streak: 6,
+    interests: ['Design', 'Música', 'Café'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-hidratado'],
+  },
+  {
+    id: 'cw-24',
+    name: 'André Silveira',
+    department: 'Operações e Suporte',
+    avatarColor: '#946851',
+    avatarBody: 'body-19',
+    avatarFace: 'face-11',
+    level: 5,
+    xp: 430,
+    streak: 7,
+    interests: ['Cinema', 'Culinária', 'Caminhada'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-primeiro-passo'],
+  },
+  {
+    id: 'cw-25',
+    name: 'Priscila Ramos',
+    department: 'Inteligência de Negócios',
+    avatarColor: '#5C768D',
+    avatarBody: 'body-20',
+    avatarFace: 'face-12',
+    level: 6,
+    xp: 580,
+    streak: 13,
+    interests: ['Literatura', 'Tecnologia', 'Café'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-embaixador'],
+  },
+  {
+    id: 'cw-26',
+    name: 'Caio Esteves',
+    department: 'Engenharia de Software',
+    avatarColor: '#6B8E78',
+    avatarBody: 'body-21',
+    avatarFace: 'face-13',
+    level: 5,
+    xp: 470,
+    streak: 8,
+    interests: ['Tecnologia', 'Programação', 'Jogos de Tabuleiro'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-mestre-cobrinha'],
+  },
+  {
+    id: 'cw-27',
+    name: 'Letícia Moura',
+    department: 'Sucesso do Cliente',
+    avatarColor: '#A87968',
+    avatarBody: 'body-22',
+    avatarFace: 'face-14',
+    level: 4,
+    xp: 330,
+    streak: 4,
+    interests: ['Café', 'Cinema', 'Caminhada'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-cafe-amigo'],
+  },
+  {
+    id: 'cw-28',
+    name: 'Marcelo Tavares',
+    department: 'Comunicação e Mídia',
+    avatarColor: '#526E64',
+    avatarBody: 'body-23',
+    avatarFace: 'face-1',
+    level: 7,
+    xp: 710,
+    streak: 17,
+    interests: ['Música', 'Design', 'Literatura'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-ergonomia-ouro'],
+  },
+  {
+    id: 'cw-29',
+    name: 'Bianca Faria',
+    department: 'Controladoria Financeira',
+    avatarColor: '#7E6B5A',
+    avatarBody: 'body-24',
+    avatarFace: 'face-2',
+    level: 5,
+    xp: 450,
+    streak: 9,
+    interests: ['Cinema', 'Café', 'Literatura'],
+    isFriend: false,
+    friendRequestStatus: 'none',
+    selectedMedalIds: ['med-hidratado'],
+  },
+  {
+    id: 'cw-30',
+    name: 'Rafael Dornelles',
+    department: 'Inovação e Pesquisa',
+    avatarColor: '#4A6B82',
+    avatarBody: 'body-15',
+    avatarFace: 'face-3',
+    level: 8,
+    xp: 860,
+    streak: 24,
+    interests: ['Tecnologia', 'Culinária', 'Jogos de Tabuleiro'],
+    isFriend: true,
+    friendRequestStatus: 'accepted',
+    selectedMedalIds: ['med-embaixador', 'med-mestre-cobrinha'],
+  },
 ];
 
 export const INITIAL_GAME_CYCLE: GameCycleState = {
-  nextReleaseTimestamp: Date.now() + 1000 * 60 * 85, // 1h 25m remaining
+  nextReleaseTimestamp: Date.now() - 1000, // Comeca com o jogo liberado e disponivel
   currentGame: 'cobrinha',
   playedInCurrentCycle: false,
   lastScore: 0,
@@ -581,6 +806,51 @@ export const INITIAL_GAME_CYCLE: GameCycleState = {
     { userId: 'cw-6', name: 'Gabriel Souza', score: 85, department: 'Engenharia de Software', avatarColor: '#9E5B4B', avatarBody: 'body-21', avatarFace: 'face-7' },
     { userId: 'cw-8', name: 'Lucas Pereira', score: 70, department: 'Qualidade e Testes', avatarColor: '#78909C', avatarBody: 'body-23', avatarFace: 'face-9' },
     { userId: 'cw-1', name: 'Mariana Costa', score: 50, department: 'Design de Produto', avatarColor: '#C87D6B', avatarBody: 'body-16', avatarFace: 'face-2' },
+  ],
+  globalHighscores: [
+    // --- Cobrinha (Snake) ---
+    { id: 'hs-c-1', game: 'cobrinha', userId: 'cw-30', name: 'Rafael Dornelles', score: 285, department: 'Inovação e Pesquisa', avatarColor: '#4A6B82', avatarBody: 'body-15', avatarFace: 'face-3', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 410 }, // Sempre
+    { id: 'hs-c-2', game: 'cobrinha', userId: 'cw-2', name: 'Bruno Oliveira', score: 260, department: 'Engenharia de Software', avatarColor: '#5A6B7C', avatarBody: 'body-17', avatarFace: 'face-3', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 390 }, // Sempre
+    { id: 'hs-c-3', game: 'cobrinha', userId: 'cw-22', name: 'Leonardo Fontes', score: 245, department: 'DevOps & Nuvem', avatarColor: '#886F8B', avatarBody: 'body-17', avatarFace: 'face-9', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 85 }, // Ano
+    { id: 'hs-c-4', game: 'cobrinha', userId: 'cw-16', name: 'Vinicius Prado', score: 230, department: 'Arquitetura de Soluções', avatarColor: '#4E6E5D', avatarBody: 'body-21', avatarFace: 'face-3', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 50 }, // Ano
+    { id: 'hs-c-5', game: 'cobrinha', userId: 'usr-main-tester', name: 'Alexandre Silva', score: 220, department: 'Engenharia de Software', avatarColor: '#6D8B75', avatarBody: 'body-15', avatarFace: 'face-1', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 12 }, // Mês
+    { id: 'hs-c-6', game: 'cobrinha', userId: 'cw-6', name: 'Gabriel Souza', score: 215, department: 'Engenharia de Software', avatarColor: '#9E5B4B', avatarBody: 'body-21', avatarFace: 'face-7', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 75 }, // Ano
+    { id: 'hs-c-7', game: 'cobrinha', userId: 'cw-26', name: 'Caio Esteves', score: 205, department: 'Engenharia de Software', avatarColor: '#6B8E78', avatarBody: 'body-21', avatarFace: 'face-13', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 6 }, // Mês
+    { id: 'hs-c-8', game: 'cobrinha', userId: 'cw-1', name: 'Mariana Costa', score: 190, department: 'Design de Produto', avatarColor: '#C87D6B', avatarBody: 'body-16', avatarFace: 'face-2', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 4 }, // Mês
+    { id: 'hs-c-9', game: 'cobrinha', userId: 'cw-8', name: 'Lucas Pereira', score: 175, department: 'Qualidade e Testes', avatarColor: '#78909C', avatarBody: 'body-23', avatarFace: 'face-9', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 2 }, // Mês
+    { id: 'hs-c-10', game: 'cobrinha', userId: 'cw-18', name: 'Felipe Antunes', score: 160, department: 'Segurança da Informação', avatarColor: '#5F738E', avatarBody: 'body-23', avatarFace: 'face-5', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 14 }, // Mês
+    { id: 'hs-c-11', game: 'cobrinha', userId: 'cw-5', name: 'Fernanda Martins', score: 145, department: 'Operações e Logística', avatarColor: '#556F5C', avatarBody: 'body-20', avatarFace: 'face-6', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 110 }, // Ano
+    { id: 'hs-c-12', game: 'cobrinha', userId: 'cw-20', name: 'Igor Meireles', score: 135, department: 'Engenharia de Dados', avatarColor: '#688A75', avatarBody: 'body-15', avatarFace: 'face-7', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 20 }, // Mês
+    { id: 'hs-c-13', game: 'cobrinha', userId: 'cw-4', name: 'Diego Ribeiro', score: 120, department: 'Marketing Digital', avatarColor: '#6D8B75', avatarBody: 'body-19', avatarFace: 'face-5', timestamp: Date.now() - 1000 * 60 * 50 }, // Mês (Recente)
+    { id: 'hs-c-14', game: 'cobrinha', userId: 'cw-17', name: 'Bruna Castilho', score: 110, department: 'Experiência do Usuário', avatarColor: '#8C5A48', avatarBody: 'body-22', avatarFace: 'face-4', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 9 }, // Mês
+
+    // --- Pong Corporativo ---
+    { id: 'hs-p-1', game: 'pong', userId: 'cw-22', name: 'Leonardo Fontes', score: 26, department: 'DevOps & Nuvem', avatarColor: '#886F8B', avatarBody: 'body-17', avatarFace: 'face-9', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 395 }, // Sempre
+    { id: 'hs-p-2', game: 'pong', userId: 'cw-6', name: 'Gabriel Souza', score: 22, department: 'Engenharia de Software', avatarColor: '#9E5B4B', avatarBody: 'body-21', avatarFace: 'face-7', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 380 }, // Sempre
+    { id: 'hs-p-3', game: 'pong', userId: 'cw-16', name: 'Vinicius Prado', score: 20, department: 'Arquitetura de Soluções', avatarColor: '#4E6E5D', avatarBody: 'body-21', avatarFace: 'face-3', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 70 }, // Ano
+    { id: 'hs-p-4', game: 'pong', userId: 'usr-main-tester', name: 'Alexandre Silva', score: 18, department: 'Engenharia de Software', avatarColor: '#6D8B75', avatarBody: 'body-15', avatarFace: 'face-1', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 5 }, // Mês
+    { id: 'hs-p-5', game: 'pong', userId: 'cw-1', name: 'Mariana Costa', score: 17, department: 'Design de Produto', avatarColor: '#C87D6B', avatarBody: 'body-16', avatarFace: 'face-2', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 60 }, // Ano
+    { id: 'hs-p-6', game: 'pong', userId: 'cw-30', name: 'Rafael Dornelles', score: 16, department: 'Inovação e Pesquisa', avatarColor: '#4A6B82', avatarBody: 'body-15', avatarFace: 'face-3', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 16 }, // Mês
+    { id: 'hs-p-7', game: 'pong', userId: 'cw-2', name: 'Bruno Oliveira', score: 15, department: 'Engenharia de Software', avatarColor: '#5A6B7C', avatarBody: 'body-17', avatarFace: 'face-3', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 8 }, // Mês
+    { id: 'hs-p-8', game: 'pong', userId: 'cw-28', name: 'Marcelo Tavares', score: 14, department: 'Comunicação e Mídia', avatarColor: '#526E64', avatarBody: 'body-23', avatarFace: 'face-1', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 22 }, // Mês
+    { id: 'hs-p-9', game: 'pong', userId: 'cw-7', name: 'Heloísa Santos', score: 13, department: 'Finanças e Controladoria', avatarColor: '#64748B', avatarBody: 'body-22', avatarFace: 'face-8', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 15 }, // Mês
+    { id: 'hs-p-10', game: 'pong', userId: 'cw-26', name: 'Caio Esteves', score: 12, department: 'Engenharia de Software', avatarColor: '#6B8E78', avatarBody: 'body-21', avatarFace: 'face-13', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 3 }, // Mês
+    { id: 'hs-p-11', game: 'pong', userId: 'cw-8', name: 'Lucas Pereira', score: 10, department: 'Qualidade e Testes', avatarColor: '#78909C', avatarBody: 'body-23', avatarFace: 'face-9', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 140 }, // Ano
+    { id: 'hs-p-12', game: 'pong', userId: 'cw-18', name: 'Felipe Antunes', score: 9, department: 'Segurança da Informação', avatarColor: '#5F738E', avatarBody: 'body-23', avatarFace: 'face-5', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 1 }, // Mês
+
+    // --- Termo Corporativo ---
+    { id: 'hs-t-1', game: 'termo', userId: 'cw-3', name: 'Camila Fernandes', score: 100, department: 'Recursos Humanos', avatarColor: '#CCA97D', avatarBody: 'body-18', avatarFace: 'face-4', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 430 }, // Sempre
+    { id: 'hs-t-2', game: 'termo', userId: 'cw-21', name: 'Débora Pires', score: 100, department: 'Pessoas e Cultura', avatarColor: '#7A6A53', avatarBody: 'body-16', avatarFace: 'face-8', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 18 }, // Mês
+    { id: 'hs-t-3', game: 'termo', userId: 'cw-19', name: 'Renata Vasconcelos', score: 100, department: 'Gestão de Projetos', avatarColor: '#B38F6D', avatarBody: 'body-24', avatarFace: 'face-6', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 65 }, // Ano
+    { id: 'hs-t-4', game: 'termo', userId: 'usr-main-tester', name: 'Alexandre Silva', score: 95, department: 'Engenharia de Software', avatarColor: '#6D8B75', avatarBody: 'body-15', avatarFace: 'face-1', timestamp: Date.now() - 1000 * 60 * 60 * 3 }, // Mês (3h atrás)
+    { id: 'hs-t-5', game: 'termo', userId: 'cw-25', name: 'Priscila Ramos', score: 95, department: 'Inteligência de Negócios', avatarColor: '#5C768D', avatarBody: 'body-20', avatarFace: 'face-12', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 4 }, // Mês
+    { id: 'hs-t-6', game: 'termo', userId: 'cw-1', name: 'Mariana Costa', score: 90, department: 'Design de Produto', avatarColor: '#C87D6B', avatarBody: 'body-16', avatarFace: 'face-2', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 19 }, // Mês
+    { id: 'hs-t-7', game: 'termo', userId: 'cw-30', name: 'Rafael Dornelles', score: 90, department: 'Inovação e Pesquisa', avatarColor: '#4A6B82', avatarBody: 'body-15', avatarFace: 'face-3', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 80 }, // Ano
+    { id: 'hs-t-8', game: 'termo', userId: 'cw-2', name: 'Bruno Oliveira', score: 85, department: 'Engenharia de Software', avatarColor: '#5A6B7C', avatarBody: 'body-17', avatarFace: 'face-3', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 450 }, // Sempre
+    { id: 'hs-t-9', game: 'termo', userId: 'cw-17', name: 'Bruna Castilho', score: 85, department: 'Experiência do Usuário', avatarColor: '#8C5A48', avatarBody: 'body-22', avatarFace: 'face-4', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 7 }, // Mês
+    { id: 'hs-t-10', game: 'termo', userId: 'cw-6', name: 'Gabriel Souza', score: 80, department: 'Engenharia de Software', avatarColor: '#9E5B4B', avatarBody: 'body-21', avatarFace: 'face-7', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 1 }, // Mês
+    { id: 'hs-t-11', game: 'termo', userId: 'cw-29', name: 'Bianca Faria', score: 75, department: 'Controladoria Financeira', avatarColor: '#7E6B5A', avatarBody: 'body-24', avatarFace: 'face-2', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 11 }, // Mês
+    { id: 'hs-t-12', game: 'termo', userId: 'cw-11', name: 'Aline Barbosa', score: 70, department: 'Design de Produto', avatarColor: '#A1887F', avatarBody: 'body-16', avatarFace: 'face-12', timestamp: Date.now() - 1000 * 60 * 60 * 24 * 90 }, // Ano
   ],
 };
 
