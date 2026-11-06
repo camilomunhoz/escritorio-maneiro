@@ -1,5 +1,6 @@
 import React from 'react';
 import { useApp } from '../../../context/AppContext';
+import { calculateUserLevel } from '../../../utils/userProgression';
 import { UserAvatar } from '../../ui/UserAvatar';
 import { Badge } from '../../ui/Badge';
 import { ProgressBar } from '../../ui/ProgressBar';
@@ -20,9 +21,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const { state, setCurrentTab } = useApp();
   const { user, dailyGoals, sharedGoal, medals } = state;
 
-  const currentLevelMinXP = (user.level - 1) * 100;
-  const xpInCurrentLevel = user.xp - currentLevelMinXP;
-  const xpNeededForNext = 100;
+  const levelInfo = calculateUserLevel(user.xp);
 
   return (
     <div className="w-full h-full flex flex-col justify-between overflow-y-auto px-4 py-3 space-y-4">
@@ -58,7 +57,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <p className="text-[11px] text-calm-500 truncate">{user.department}</p>
 
             <div className="flex items-center gap-2 mt-1.5">
-              <Badge variant="sage" size="sm">Nível {user.level}</Badge>
+              <Badge variant="sage" size="sm">Nível {levelInfo.level}</Badge>
               <span className="text-[10px] text-calm-500">{user.xp} XP acumulados</span>
             </div>
           </div>
@@ -67,10 +66,10 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Barra de Progresso de Nível */}
         <div className="mt-3 pt-2.5 border-t border-calm-200/60 flex flex-col gap-1">
           <div className="flex items-center justify-between text-[10px] text-calm-600">
-            <span>Progresso do Nível {user.level}</span>
-            <span className="font-semibold">{xpInCurrentLevel} / {xpNeededForNext} XP</span>
+            <span>Progresso do Nível {levelInfo.level}</span>
+            <span className="font-semibold">{levelInfo.currentLevelXp} / {levelInfo.nextLevelXpRequired} XP</span>
           </div>
-          <ProgressBar value={xpInCurrentLevel} max={xpNeededForNext} color="sage" height="sm" />
+          <ProgressBar value={levelInfo.currentLevelXp} max={levelInfo.nextLevelXpRequired} color="sage" height="sm" />
         </div>
       </section>
 

@@ -9,7 +9,7 @@ import {
 
 export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'hero' | 'full';
 
-export const AVATAR_SIZE_MAP: Record<AvatarSize, { container: string; svg: string }> = {
+const AVATAR_SIZE_MAP: Record<AvatarSize, { container: string; svg: string }> = {
   xs: { container: 'w-6 h-6', svg: 'w-5 h-5' },
   sm: { container: 'w-8 h-8', svg: 'w-7 h-7' },
   md: { container: 'w-10 h-10', svg: 'w-9 h-9' },

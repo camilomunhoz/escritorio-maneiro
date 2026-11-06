@@ -3,10 +3,15 @@ import type { AppState, DrawerMode, NavigationTab, User, GameType, RoundLeaderbo
 import { loadAppState, saveAppState, resetAppState } from '../services/storageService';
 import { INITIAL_COWORKERS, createInitialAppState, getRandomDailyGoals } from '../services/mockDataService';
 import { getXpRewardForEncounter, calculateConnectionLevel } from '../utils/socialUtils';
+import { calculateUserLevel } from '../utils/userProgression';
+import { GLITCH_CONFIG } from '../config/glitchConfig';
 
 interface AppContextValue {
   state: AppState;
   xpBadge: XpGainBadge | null;
+  // Glitch effect
+  isGlitching: boolean;
+  triggerGlitch: () => void;
   setDrawerOpen: (open: boolean) => void;
   toggleDrawer: () => void;
   setDrawerMode: (mode: DrawerMode) => void;
@@ -154,6 +159,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setGodmodeOpen(prev => !prev);
   }, []);
 
+  // Glitch effect state and trigger for cheat actions
+  const [isGlitching, setIsGlitching] = useState<boolean>(false);
+  const glitchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const triggerGlitch = useCallback(() => {
+    if (glitchTimeoutRef.current) {
+      clearTimeout(glitchTimeoutRef.current);
+    }
+    setIsGlitching(true);
+    glitchTimeoutRef.current = setTimeout(() => {
+      setIsGlitching(false);
+      glitchTimeoutRef.current = null;
+    }, GLITCH_CONFIG.durationMs);
+  }, []);
+
   // Automatically persist to localStorage whenever state changes
   useEffect(() => {
     saveAppState(state);
@@ -188,7 +208,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const prevLevel = userRef.current.level;
     const currentXp = userRef.current.xp;
     const newXP = currentXp + amount;
-    const newLevel = Math.floor(newXP / 100) + 1;
+    const { level: newLevel } = calculateUserLevel(newXP);
     const didLevelUp = newLevel > prevLevel;
 
     // Immediately keep userRef synchronized
@@ -276,15 +296,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const completeOnboarding = useCallback(() => {
-    setState(prev => ({
-      ...prev,
-      onboardingCompleted: true,
-      drawerMode: 'normal',
-      currentTab: 'home',
-    }));
+    const welcomeNotif: NotificationItem = {
+      id: 'notif-welcome',
+      title: 'Bem-vindo ao Nimbo!',
+      message: 'Sua jornada de bem-estar corporativo começou. Explore pausas ativas e metas diárias.',
+      timestamp: Date.now(),
+      read: false,
+      category: 'system',
+      goToTab: 'home',
+    };
+
+    setState(prev => {
+      const remaining = prev.notifications.filter(n => n.id !== 'notif-welcome');
+      return {
+        ...prev,
+        onboardingCompleted: true,
+        drawerMode: 'normal',
+        currentTab: 'home',
+        notifications: [welcomeNotif, ...remaining],
+      };
+    });
   }, []);
 
   const reopenOnboarding = useCallback(() => {
+    setShowNotifications(false);
     setState(prev => ({
       ...prev,
       onboardingCompleted: false,
@@ -294,11 +329,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   }, []);
 
   const resetAllData = useCallback(() => {
+    setShowNotifications(false);
     const fresh = resetAppState();
     setState(fresh);
   }, []);
 
   const toggleUserExperienceMode = useCallback(() => {
+    triggerGlitch();
     setState(prev => {
       const willBeExperienced = !prev.isExperienced;
       if (willBeExperienced) {
@@ -306,16 +343,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         userRef.current = expState.user;
         return {
           ...expState,
-          drawerOpen: true,
-          drawerMode: 'normal',
-          currentTab: 'home',
+          drawerOpen: prev.drawerOpen,
+          drawerMode: prev.drawerMode,
+          currentTab: prev.drawerOpen ? prev.currentTab : 'home',
         };
       } else {
         const freshState = createInitialAppState(false);
         userRef.current = freshState.user;
         return {
           ...freshState,
-          drawerOpen: true,
+          drawerOpen: prev.drawerOpen,
           drawerMode: 'normal',
           onboardingCompleted: false,
           onboardingStep: 1,
@@ -323,7 +360,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
       }
     });
-  }, []);
+  }, [triggerGlitch]);
 
   // Game Rotation Helpers
   const GAME_ROTATION_SEQUENCE: GameType[] = ['cobrinha', 'pong', 'termo'];
@@ -363,6 +400,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Godmode helpers
   const godmodeUnlockNextGame = useCallback(() => {
+    triggerGlitch();
     setState(prev => {
       const nextGame = getNextGameType(prev.gameCycle.currentGame);
       const gameNames: Record<GameType, string> = {
@@ -393,9 +431,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         },
       };
     });
-  }, []);
+  }, [triggerGlitch]);
 
   const godmodeSimulateWater = useCallback(() => {
+    triggerGlitch();
     setState(prev => {
       const newCount = Math.min(prev.health.waterTarget, prev.health.waterCount + 200);
       return {
@@ -407,9 +446,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         },
       };
     });
-  }, []);
+  }, [triggerGlitch]);
 
   const godmodeSimulatePostureAlert = useCallback(() => {
+    triggerGlitch();
     setState(prev => ({
       ...prev,
       health: {
@@ -417,14 +457,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         postureScore: Math.max(50, prev.health.postureScore - 15),
       },
     }));
-  }, []);
+  }, [triggerGlitch]);
 
   const godmodeNewDailyGoals = useCallback(() => {
+    triggerGlitch();
     setState(prev => ({
       ...prev,
       dailyGoals: getRandomDailyGoals(),
     }));
-  }, []);
+  }, [triggerGlitch]);
 
   const godmodeResetDailyGoals = godmodeNewDailyGoals;
 
@@ -864,6 +905,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const value: AppContextValue = {
     state,
     xpBadge,
+    isGlitching,
+    triggerGlitch,
     setDrawerOpen,
     toggleDrawer,
     setDrawerMode,

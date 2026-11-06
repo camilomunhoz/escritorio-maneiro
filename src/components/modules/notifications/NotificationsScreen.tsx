@@ -9,6 +9,7 @@ import {
   HeartPulse,
   Award,
   Inbox,
+  Sparkles,
 } from 'lucide-react';
 import { formatNotificationTime } from '../../../utils/formatters';
 
@@ -67,6 +68,8 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
         return <HeartPulse size={16} className="text-sage-700" />;
       case 'medal':
         return <Award size={16} className="text-amber-600" />;
+      case 'system':
+        return <Sparkles size={16} className="text-sage-600" />;
       default:
         return <Bell size={16} className="text-calm-600" />;
     }

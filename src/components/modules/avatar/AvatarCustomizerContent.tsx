@@ -9,38 +9,7 @@ import {
   DEFAULT_BODY_ID,
   DEFAULT_FACE_ID,
 } from '../../../data/avatarRegistry';
-
-export const AVATAR_COLOR_PALETTE = [
-  // Tons Terrosos e Orgânicos
-  { name: 'Sálvia', hex: '#6D8B75' },
-  { name: 'Oliva', hex: '#556F5C' },
-  { name: 'Musgo Profundo', hex: '#446050' },
-  { name: 'Eucalipto', hex: '#597E72' },
-  { name: 'Menta Suave', hex: '#689689' },
-
-  // Tons Neutros e Minerais
-  { name: 'Ardósia', hex: '#5A6B7C' },
-  { name: 'Aço', hex: '#455A64' },
-  { name: 'Índigo Calmo', hex: '#4E5F80' },
-  { name: 'Denim Suave', hex: '#536E8B' },
-  { name: 'Azul Céu Suave', hex: '#5B7B8C' },
-
-  // Tons Quentes e Argilas
-  { name: 'Terracota', hex: '#C87D6B' },
-  { name: 'Carmesim Suave', hex: '#9E5B4B' },
-  { name: 'Pêssego Calmo', hex: '#C27664' },
-  { name: 'Argila', hex: '#8D6E63' },
-  { name: 'Cedro Suave', hex: '#7C5D4D' },
-
-  // Tons Dourados e Areias
-  { name: 'Areia', hex: '#CCA97D' },
-  { name: 'Mostarda Suave', hex: '#B88B4A' },
-  { name: 'Âmbar Calmo', hex: '#C09358' },
-
-  // Tons Florais e Lilases
-  { name: 'Lavanda Suave', hex: '#7E7496' },
-  { name: 'Ameixa Suave', hex: '#82576B' },
-];
+import { AVATAR_COLOR_PALETTE } from '../../../constants/avatarPalette';
 
 export interface AvatarCustomizerConfig {
   color: string;

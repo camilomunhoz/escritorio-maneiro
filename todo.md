@@ -25,9 +25,9 @@
 
 17. [x] remova o calculo baseado em copos, mantenha somente os 200ml+.
 
-18. [ ] melhorar UI do desktop e godmode bar
-18a. [ ] causar efeito de glitch sutil em toda a tela quando um cheat for utilizado
-18b. [ ] níveis do jogador devem ter requisito de XP incremental conforme avança. comece em 60 e some 20 a cada nível.
-19. [ ] começar no nível 0.
+18. [x] melhorar UI do desktop e godmode bar
+18a. [x] causar efeito de glitch sutil em toda a tela quando um cheat for utilizado
+18b. [x] níveis do jogador devem ter requisito de XP incremental conforme avança. comece em 60 e some 20 a cada nível.
+19. [x] começar no nível 0.
 20. [ ] pensar nas notificações.
 21. [ ] criar atalhos rapidos para validar postura e registrar água

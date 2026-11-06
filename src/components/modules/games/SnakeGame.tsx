@@ -12,7 +12,7 @@ export interface SnakeGameStyleConfig {
 }
 
 // Estilo visual original do jogo na tela principal (tons claros e suaves)
-export const DEFAULT_SNAKE_STYLE: Required<SnakeGameStyleConfig> = {
+const DEFAULT_SNAKE_STYLE: Required<SnakeGameStyleConfig> = {
   bgColor: '#F8FAFC',
   gridColor: '#E2E8F0',
   snakeHeadColor: '#4F7762',
@@ -24,7 +24,7 @@ export const DEFAULT_SNAKE_STYLE: Required<SnakeGameStyleConfig> = {
 };
 
 // Estilo arcade escuro e minimalista exclusivo para a tela do fliperama
-export const ARCADE_SNAKE_STYLE: Required<SnakeGameStyleConfig> = {
+const ARCADE_SNAKE_STYLE: Required<SnakeGameStyleConfig> = {
   bgColor: '#0F172A',
   gridColor: '#1E293B',
   snakeHeadColor: '#5B8C70',

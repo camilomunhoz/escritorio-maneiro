@@ -3,7 +3,6 @@ import QRCode from 'qrcode';
 import { useApp } from '../../../context/AppContext';
 import { Modal } from '../../ui/Modal';
 import { UserAvatar } from '../../ui/UserAvatar';
-import { Badge } from '../../ui/Badge';
 import { Button } from '../../ui/Button';
 import { ProgressBar } from '../../ui/ProgressBar';
 import { CountdownClock } from '../../ui/CountdownClock';
@@ -19,7 +18,6 @@ import {
   QrCode,
   MapPin,
   Check,
-  Minimize2,
 } from 'lucide-react';
 
 interface SharedGoalExpandedModalProps {
@@ -223,7 +221,7 @@ export const SharedGoalExpandedModal: React.FC<SharedGoalExpandedModalProps> = (
                 {sharedGoal.title}
               </h3>
               <p className="text-[10px] text-calm-500 leading-tight">
-                Desafio colaborativo da empresa (30 dias)
+                Desafio colaborativo da empresa
               </p>
             </div>
           </div>
@@ -231,14 +229,6 @@ export const SharedGoalExpandedModal: React.FC<SharedGoalExpandedModalProps> = (
 
         <div className="flex items-center gap-2">
           <CountdownClock daysRemaining={sharedGoal.deadlineDays} />
-          <Badge variant="sage" size="sm">{sharedGoal.targetKm.toLocaleString('pt-BR')} km alvo</Badge>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-calm-500 hover:text-calm-900 hover:bg-calm-200/70 transition cursor-pointer"
-            title="Retornar ao Drawer Normal (350px)"
-          >
-            <Minimize2 size={14} />
-          </button>
         </div>
       </div>
 
@@ -255,11 +245,11 @@ export const SharedGoalExpandedModal: React.FC<SharedGoalExpandedModalProps> = (
                     Progresso Coletivo
                   </span>
                   <h4 className="text-sm font-bold text-calm-900">
-                    {sharedGoal.currentKm.toLocaleString('pt-BR')} km
+                    {sharedGoal.currentKm.toLocaleString('pt-BR')}{' '}
+                    <span className="font-normal text-calm-400">
+                      / {sharedGoal.targetKm.toLocaleString('pt-BR')} km
+                    </span>
                   </h4>
-                  <p className="text-[10px] text-calm-500">
-                    de {sharedGoal.targetKm.toLocaleString('pt-BR')} km da circunferência da Terra
-                  </p>
                 </div>
                 <div className="text-right">
                   <span className="text-base font-bold text-sand-800">{percentage.toFixed(1)}%</span>

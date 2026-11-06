@@ -27,14 +27,14 @@ export const DrawerHost: React.FC<DrawerHostProps> = ({ children }) => {
 
   return (
     <div
-      className={`fixed bottom-12 right-6 z-40 transition-all duration-300 ease-in-out transform origin-bottom-right ${state.drawerOpen
+      className={`fixed bottom-14 right-3 z-40 transition-all duration-300 ease-in-out transform origin-bottom-right font-sans ${state.drawerOpen
           ? 'translate-y-0 opacity-100 scale-100 pointer-events-auto'
           : 'translate-y-16 opacity-0 scale-95 pointer-events-none'
         }`}
     >
       {/* Outer Floating Drawer Card */}
       <div
-        className={`relative flex flex-col bg-white rounded-2xl border border-calm-200/90 shadow-drawer overflow-hidden transition-all duration-300 ease-in-out ${currentDimensionClass}`}
+        className={`relative flex flex-col bg-white rounded-2xl border border-calm-200/90 shadow-drawer overflow-hidden transition-all duration-300 ease-in-out font-sans ${currentDimensionClass}`}
       >
         {/* Compact Window Header */}
         <div className="flex items-center justify-between px-3 py-1 h-7 bg-calm-50/90 border-b border-calm-200/70 select-none text-[11px] text-calm-600 shrink-0">
@@ -57,22 +57,24 @@ export const DrawerHost: React.FC<DrawerHostProps> = ({ children }) => {
 
           {/* Right: Window Actions - Bell Notifications & Chevron Down Minimize */}
           <div className="flex items-center gap-1">
-            <button
-              onClick={handleToggleNotifications}
-              className={`p-1 rounded transition cursor-pointer relative ${isNotificationsActive
-                  ? 'text-sage-800 bg-sage-100/80'
-                  : 'text-calm-500 hover:text-calm-800 hover:bg-calm-200/60'
-                }`}
-              title="Notificações"
-            >
-              <Bell size={13} />
-              {unreadNotificationsCount > 0 && (
-                <span
-                  className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"
-                  title={`${unreadNotificationsCount} novas notificações`}
-                />
-              )}
-            </button>
+            {state.onboardingCompleted && (
+              <button
+                onClick={handleToggleNotifications}
+                className={`p-1 rounded transition cursor-pointer relative ${isNotificationsActive
+                    ? 'text-sage-800 bg-sage-100/80'
+                    : 'text-calm-500 hover:text-calm-800 hover:bg-calm-200/60'
+                  }`}
+                title="Notificações"
+              >
+                <Bell size={13} />
+                {unreadNotificationsCount > 0 && (
+                  <span
+                    className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"
+                    title={`${unreadNotificationsCount} novas notificações`}
+                  />
+                )}
+              </button>
+            )}
             <button
               onClick={() => setDrawerOpen(false)}
               className="p-1 rounded text-calm-500 hover:text-calm-800 hover:bg-calm-200/60 transition cursor-pointer"

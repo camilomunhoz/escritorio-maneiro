@@ -15,7 +15,7 @@ export interface TermoGameStyleConfig {
   tileAbsentBorder?: string;
 }
 
-export const DEFAULT_TERMO_STYLE: Required<TermoGameStyleConfig> = {
+const DEFAULT_TERMO_STYLE: Required<TermoGameStyleConfig> = {
   bgColor: '#0F172A',
   tileEmptyBg: '#1E293B',
   tileEmptyBorder: '#334155',

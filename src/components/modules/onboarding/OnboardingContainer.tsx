@@ -4,10 +4,10 @@ import { AvatarSvg } from '../../ui/AvatarSvg';
 import { Button } from '../../ui/Button';
 import { Loader } from '../../ui/Loader';
 import { ArrowLeft, ArrowRight, ShieldCheck, Camera, Check, Sparkles } from 'lucide-react';
-import { AvatarCustomizerContent, AVATAR_COLOR_PALETTE } from '../avatar/AvatarCustomizerContent';
+import { AvatarCustomizerContent } from '../avatar/AvatarCustomizerContent';
 import { DEFAULT_BODY_ID, DEFAULT_FACE_ID } from '../../../data/avatarRegistry';
 
-export const COLOR_PALETTE = AVATAR_COLOR_PALETTE;
+
 
 export const OnboardingContainer: React.FC = () => {
   const { state, setDrawerMode, updateUser, completeOnboarding } = useApp();

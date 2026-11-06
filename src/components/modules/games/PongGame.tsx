@@ -12,7 +12,7 @@ export interface PongGameStyleConfig {
 }
 
 // Estilo visual original do jogo na tela principal (tons claros e suaves)
-export const DEFAULT_PONG_STYLE: Required<PongGameStyleConfig> = {
+const DEFAULT_PONG_STYLE: Required<PongGameStyleConfig> = {
   bgColor: '#F8FAFC',
   netColor: '#E2E8F0',
   playerColor: '#4F7762',
@@ -24,7 +24,7 @@ export const DEFAULT_PONG_STYLE: Required<PongGameStyleConfig> = {
 };
 
 // Estilo arcade escuro e minimalista exclusivo para a tela do fliperama
-export const ARCADE_PONG_STYLE: Required<PongGameStyleConfig> = {
+const ARCADE_PONG_STYLE: Required<PongGameStyleConfig> = {
   bgColor: '#0F172A',
   netColor: '#1E293B',
   playerColor: '#5B8C70',

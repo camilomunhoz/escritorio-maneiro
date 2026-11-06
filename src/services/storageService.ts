@@ -1,5 +1,6 @@
 import type { AppState } from '../types';
 import { createInitialAppState } from './mockDataService';
+import { calculateUserLevel } from '../utils/userProgression';
 
 const STORAGE_KEY = 'escritorio_divertido_app_state_v2';
 
@@ -19,6 +20,15 @@ export function loadAppState(): AppState {
     const initial = createInitialAppState(false);
     if (parsed.isExperienced === undefined) {
       parsed.isExperienced = parsed.user.xp > 0;
+    }
+    if (parsed.user) {
+      parsed.user.level = calculateUserLevel(parsed.user.xp).level;
+    }
+    if (typeof parsed.drawerOpen !== 'boolean') {
+      parsed.drawerOpen = false;
+    }
+    if (!parsed.currentTab) {
+      parsed.currentTab = 'home';
     }
     // Guarantee required fields from current schema updates
     if (!parsed.connections || !Array.isArray(parsed.connections)) {

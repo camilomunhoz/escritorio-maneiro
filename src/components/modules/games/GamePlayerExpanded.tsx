@@ -8,43 +8,14 @@ import { PongGame } from './PongGame';
 import { TermoGame } from './TermoGame';
 import { Gamepad2, Award, Play, Trophy } from 'lucide-react';
 import type { GameType } from '../../../types';
+import { GAME_INSTRUCTIONS, type GameInstructionConfig } from '../../../constants/gameInstructions';
 
 export interface GamePlayerExpandedProps {
   onExit?: () => void;
   zIndex?: number;
 }
 
-export interface GameInstructionConfig {
-  title: string;
-  category: string;
-  objective: string;
-  controls: string;
-  tip: string;
-}
-
-export const GAME_INSTRUCTIONS: Record<GameType, GameInstructionConfig> = {
-  cobrinha: {
-    title: 'Jogo da Cobrinha',
-    category: 'Destreza e Reflexos',
-    objective: 'Guie a cobrinha pelo tabuleiro e colete frutos saudáveis para crescer e pontuar.',
-    controls: 'Teclas direcionais (Setas do teclado ou W, A, S, D).',
-    tip: 'Evite colidir com as quatro paredes ou com o próprio corpo.',
-  },
-  pong: {
-    title: 'Ping y Pong',
-    category: 'Foco e Coordenação',
-    objective: 'Rebata a bolinha contra a inteligência artificial corporativa mantendo ralis contínuos.',
-    controls: 'Mova o cursor verticalmente na área de jogo ou use as setas Cima e Baixo.',
-    tip: 'Ralis longos e pontos convertidos multiplicam sua recompensa.',
-  },
-  termo: {
-    title: 'Termo',
-    category: 'Vocabulário e Cognição',
-    objective: 'Adivinhe a palavra secreta de 5 letras relacionada a bem-estar em até 6 tentativas.',
-    controls: 'Teclado físico do computador ou toque nas teclas virtuais.',
-    tip: 'Verde: letra certa na posição exata. Amarelo: letra presente na palavra, em outra posição.',
-  },
-};
+export type { GameInstructionConfig };
 
 export const GamePlayerExpanded: React.FC<GamePlayerExpandedProps> = ({ onExit, zIndex }) => {
   const { state, setDrawerMode, finishGameRound } = useApp();
